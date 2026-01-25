@@ -4,6 +4,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { TournamentsModule } from './tournaments/tournaments.module';
+import { BracketsModule } from './brackets/brackets.module';
+import { MatchesModule } from './matches/matches.module';
 
 @Module({
   imports: [
@@ -11,7 +14,6 @@ import { AppService } from './app.service';
       envFilePath: './../.env',
       isGlobal: true, // optional but recommended
     }),
-
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -26,8 +28,10 @@ import { AppService } from './app.service';
         synchronize: true, // disable in production
       }),
     }),
-
     UsersModule,
+    TournamentsModule,
+    BracketsModule,
+    MatchesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
