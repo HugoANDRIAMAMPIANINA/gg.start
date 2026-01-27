@@ -11,6 +11,7 @@ import { BracketsService } from './brackets.service';
 import { CreateBracketDto } from '../brackets/dto/create-bracket.dto';
 import { UpdateBracketDto } from '../brackets/dto/update-bracket.dto';
 import { CreateBracketPlayerDto } from 'src/bracket-players/dto/create-bracket-player.dto';
+import { UpdatePlayersSeedingDto } from './dto/update-players-seeding.dto';
 
 @Controller('brackets')
 export class BracketsController {
@@ -21,32 +22,35 @@ export class BracketsController {
     return this.bracketsService.create(createBracketDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.bracketsService.findOneById(id);
+  @Get(':bracketId')
+  findOne(@Param('bracketId') bracketId: string) {
+    return this.bracketsService.findOneById(bracketId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBracketDto: UpdateBracketDto) {
-    return this.bracketsService.update(id, updateBracketDto);
+  @Patch(':bracketId')
+  update(
+    @Param('bracketId') bracketId: string,
+    @Body() updateBracketDto: UpdateBracketDto,
+  ) {
+    return this.bracketsService.update(bracketId, updateBracketDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.bracketsService.remove(id);
+  @Delete(':bracketId')
+  remove(@Param('bracketId') bracketId: string) {
+    return this.bracketsService.remove(bracketId);
   }
 
-  @Post(':id/players')
+  @Post(':bracketId/players')
   addPlayer(
-    @Param('id') id: string,
+    @Param('bracketId') bracketId: string,
     @Body() createBracketPlayerDto: CreateBracketPlayerDto,
   ) {
-    return this.bracketsService.addPlayer(id, createBracketPlayerDto);
+    return this.bracketsService.addPlayer(bracketId, createBracketPlayerDto);
   }
 
-  @Get(':id/players')
-  findPlayers(@Param('id') id: string) {
-    return this.bracketsService.findPlayers(id);
+  @Get(':bracketId/players')
+  findPlayers(@Param('bracketId') bracketId: string) {
+    return this.bracketsService.findPlayers(bracketId);
   }
 
   @Delete(':bracketId/players/:bracketPlayerId')
@@ -55,5 +59,21 @@ export class BracketsController {
     @Param('bracketPlayerId') bracketPlayerId: string,
   ) {
     return this.bracketsService.removePlayer(bracketId, bracketPlayerId);
+  }
+
+  @Post(':bracketId/update-seeding')
+  updateBracketSeeding(
+    @Param('bracketId') bracketId: string,
+    @Body() updatePlayersSeedingDto: UpdatePlayersSeedingDto,
+  ) {
+    return this.bracketsService.updateBracketSeeding(
+      bracketId,
+      updatePlayersSeedingDto,
+    );
+  }
+
+  @Post(':bracketId/generate')
+  generateBracket(@Param('bracketId') bracketId: string) {
+    return this.bracketsService.generateBracket(bracketId);
   }
 }

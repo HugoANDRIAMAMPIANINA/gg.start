@@ -1,5 +1,5 @@
 import { Bracket } from 'src/brackets/entities/bracket.entity';
-import { MatchState } from 'src/common/enum/matchState';
+import { MatchState } from 'src/common/enum/match-state.enum';
 import { MatchPlayer } from 'src/match-players/entities/match-player.entity';
 import {
   Column,
@@ -14,6 +14,12 @@ export class Match {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column()
+  roundNumber: number;
+
+  @Column()
+  roundMatchNumber: number;
+
   @ManyToOne(() => Bracket, (bracket) => bracket.matches, {
     nullable: false,
     onDelete: 'CASCADE',
@@ -23,7 +29,7 @@ export class Match {
   @Column({
     type: 'enum',
     enum: MatchState,
-    default: MatchState.Pending,
+    default: MatchState.PENDING,
   })
   state: MatchState;
 
@@ -32,7 +38,6 @@ export class Match {
   })
   players: MatchPlayer[];
 
-  // Graph links
   @ManyToOne(() => Match, { nullable: true })
   winnerNextMatch: Match | null;
 

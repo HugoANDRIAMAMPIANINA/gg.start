@@ -27,8 +27,11 @@ export class MatchPlayer {
   bracketPlayer: BracketPlayer;
 
   @Column()
-  slot: number; // 1, 2 (or more later)
+  slot: number;
 
   @Column({ default: 0 })
   score: number;
+
+  @Column({ default: false })
+  isWinner: boolean;
 }

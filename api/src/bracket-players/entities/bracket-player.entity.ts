@@ -27,5 +27,5 @@ export class BracketPlayer {
   user: User;
 
   @Column()
-  seeding: number;
+  seed: number;
 }
