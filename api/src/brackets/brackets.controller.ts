@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  HttpStatus,
 } from '@nestjs/common';
 import { BracketsService } from './brackets.service';
 import { CreateBracketDto } from '../brackets/dto/create-bracket.dto';
@@ -41,11 +42,14 @@ export class BracketsController {
   }
 
   @Post(':bracketId/players')
-  addPlayer(
+  async addPlayer(
     @Param('bracketId') bracketId: string,
     @Body() createBracketPlayerDto: CreateBracketPlayerDto,
   ) {
-    return this.bracketsService.addPlayer(bracketId, createBracketPlayerDto);
+    await this.bracketsService.addPlayer(bracketId, createBracketPlayerDto);
+
+    await this.bracketsService.generateBracket(bracketId);
+    return;
   }
 
   @Get(':bracketId/players')
@@ -59,6 +63,11 @@ export class BracketsController {
     @Param('bracketPlayerId') bracketPlayerId: string,
   ) {
     return this.bracketsService.removePlayer(bracketId, bracketPlayerId);
+  }
+
+  @Get(':bracketId/matches')
+  findBracketMatches(@Param('bracketId') bracketId: string) {
+    return this.bracketsService.findBracketMatches(bracketId);
   }
 
   @Post(':bracketId/update-seeding')

@@ -2,35 +2,21 @@ import { BracketPlayer } from 'src/bracket-players/entities/bracket-player.entit
 import { Match } from 'src/matches/entities/match.entity';
 import { Bracket } from '../../entities/bracket.entity';
 import { BracketGenerator } from '../bracket-generator.interface';
-import { User } from 'src/users/entities/user.entity';
+import { MatchPlayer } from 'src/match-players/entities/match-player.entity';
+import generateBracketOrder from 'src/common/helpers/generate-bracket-order';
+import createMatchPlayer from 'src/match-players/helpers/create-match-player';
+import { MatchState } from 'src/common/enum/match-state.enum';
 
 export class SingleEliminationGenerator implements BracketGenerator {
-  generate(bracket: Bracket): Match[] {
+  generateMatches(bracket: Bracket): Match[] {
     const matches: Match[] = [];
-
-    const testPlayers: BracketPlayer[] = [];
-    for (let i = 1; i <= 15; i++) {
-      const testUser: User = new User();
-      testUser.name = `player${i}`;
-      const testPlayer = new BracketPlayer();
-      testPlayer.seed = i;
-      testPlayer.user = testUser;
-      testPlayers.push(testPlayer);
-    }
-
-    const sortedPlayers = [...testPlayers].sort((a, b) => a.seed - b.seed);
-    // console.log(sortedPlayers);
 
     let nearestPowerOfTwo: number = 2;
     let roundCount: number = 1;
-    while (nearestPowerOfTwo < sortedPlayers.length) {
+    while (nearestPowerOfTwo < bracket.players.length) {
       nearestPowerOfTwo *= 2;
       roundCount += 1;
     }
-
-    console.log(
-      `nearestPowerOfTwo: ${nearestPowerOfTwo}\nround_count: ${roundCount}`,
-    );
 
     const currentRound = roundCount;
     const roundMatchNumber = 1;
@@ -60,6 +46,46 @@ export class SingleEliminationGenerator implements BracketGenerator {
     return matches;
   }
 
+  generateFirstRoundMatchPlayers(
+    matches: Match[],
+    players: BracketPlayer[],
+  ): MatchPlayer[] {
+    const matchPlayers: MatchPlayer[] = [];
+
+    let nearestPowerOfTwo: number = 2;
+    while (nearestPowerOfTwo < players.length) {
+      nearestPowerOfTwo *= 2;
+    }
+
+    const bracketOrder: number[] = generateBracketOrder(nearestPowerOfTwo);
+    console.log(bracketOrder);
+
+    matches = matches
+      .filter((match) => match.roundNumber === 1)
+      .sort((a, b) => a.roundMatchNumber - b.roundMatchNumber);
+    console.log(`Nombre de matchs du round 1: ${matches.length}`);
+
+    // bracketOrder.map((seed));
+    matches.map((match, index) => {
+      const player1 = players.find(
+        (player) => player.seed === bracketOrder[index * 2] + 1,
+      );
+      const player2 = players.find(
+        (player) => player.seed === bracketOrder[index * 2 + 1] + 1,
+      );
+      const isWinner = player2 === undefined ? true : false;
+
+      if (player1) {
+        matchPlayers.push(createMatchPlayer(match, player1, 1, isWinner));
+      }
+      if (player2) {
+        matchPlayers.push(createMatchPlayer(match, player2, 2, isWinner));
+      }
+    });
+
+    return matchPlayers;
+  }
+
   private createMatch(
     matches: Match[],
     winnerNextMatch: Match,
@@ -76,10 +102,7 @@ export class SingleEliminationGenerator implements BracketGenerator {
     match.winnerNextSlot = winnerNextSlot;
     match.roundNumber = currentRound;
     match.roundMatchNumber = roundMatchNumber;
-    // console.log(currentRound);
-    // console.log(match.id);
-    // console.log(`WR${currentRound}M${roundMatchNumber}`);
-    // console.log(match.winnerNextSlot);
+
     matches.push(match);
 
     this.createMatch(
@@ -90,19 +113,5 @@ export class SingleEliminationGenerator implements BracketGenerator {
       roundMatchNumber * 2 - 1,
     );
     this.createMatch(matches, match, 2, currentRound - 1, roundMatchNumber * 2);
-    // return match;
   }
-
-  // private createParticipant(
-  //   match: Match,
-  //   player: BracketPlayer,
-  //   slot: number,
-  // ): MatchPlayer {
-  //   const matchPlayer = new MatchPlayer();
-  //   matchPlayer.match = match;
-  //   matchPlayer.bracketPlayer = player;
-  //   matchPlayer.slot = slot;
-  //   matchPlayer.score = 0;
-  //   return matchPlayer;
-  // }
 }

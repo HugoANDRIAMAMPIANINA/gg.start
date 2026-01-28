@@ -17,6 +17,10 @@ import { UpdatePlayersSeedingDto } from './dto/update-players-seeding.dto';
 import { BracketGenerator } from './bracket-generation/bracket-generator.interface';
 import { BracketMatchGeneratorFactory } from './bracket-generation/bracket-generator.factory';
 import generateBracketOrder from 'src/common/helpers/generate-bracket-order';
+import { Match } from 'src/matches/entities/match.entity';
+import { MatchPlayer } from 'src/match-players/entities/match-player.entity';
+import createMatchPlayer from 'src/match-players/helpers/create-match-player';
+import { MatchState } from 'src/common/enum/match-state.enum';
 
 @Injectable()
 export class BracketsService {
@@ -29,9 +33,13 @@ export class BracketsService {
     private usersRepository: Repository<User>,
     @InjectRepository(BracketPlayer)
     private bracketPlayersRepository: Repository<BracketPlayer>,
+    @InjectRepository(Match)
+    private matchesRepository: Repository<Match>,
+    @InjectRepository(MatchPlayer)
+    private matchPlayersRepository: Repository<MatchPlayer>,
   ) {}
 
-  async create(createBracketDto: CreateBracketDto) {
+  async create(createBracketDto: CreateBracketDto): Promise<Bracket> {
     const tournament = await this.tournamentsRepository.findOneBy({
       id: createBracketDto.tournamentId,
     });
@@ -62,23 +70,20 @@ export class BracketsService {
     return await this.bracketsRepository.save(bracket);
   }
 
-  async findOneById(id: string) {
-    const brackets = await this.bracketsRepository.find({
+  async findOneById(id: string): Promise<Bracket> {
+    const bracket = await this.bracketsRepository.findOne({
       where: { id },
       relations: { players: { user: true } },
-      take: 1,
+      order: { players: { seed: 'ASC' } },
     });
-    if (brackets.length === 0) {
-      throw new NotFoundException('Bracket not found');
-    }
-    return brackets[0];
-  }
-
-  async update(id: string, updateBracketDto: UpdateBracketDto) {
-    const bracket = await this.bracketsRepository.findOneBy({ id });
     if (!bracket) {
       throw new NotFoundException('Bracket not found');
     }
+    return bracket;
+  }
+
+  async update(id: string, updateBracketDto: UpdateBracketDto): Promise<void> {
+    const bracket = await this.findOneById(id);
 
     const newName = updateBracketDto.name;
     if (newName) {
@@ -93,8 +98,8 @@ export class BracketsService {
     await this.bracketsRepository.save(bracket);
   }
 
-  async remove(id: string) {
-    return await this.bracketsRepository.delete(id);
+  async remove(id: string): Promise<void> {
+    await this.bracketsRepository.delete(id);
   }
 
   async updateBracketSeedingAfterRemove(players: BracketPlayer[]) {
@@ -109,7 +114,10 @@ export class BracketsService {
     }
   }
 
-  async addPlayer(id: string, createBracketPlayerDto: CreateBracketPlayerDto) {
+  async addPlayer(
+    id: string,
+    createBracketPlayerDto: CreateBracketPlayerDto,
+  ): Promise<BracketPlayer> {
     const user = await this.usersRepository.findOneBy({
       id: createBracketPlayerDto.userId,
     });
@@ -118,10 +126,6 @@ export class BracketsService {
     }
 
     const bracket = await this.findOneById(id);
-    console.log(bracket);
-    if (!bracket) {
-      throw new NotFoundException('Bracket not found');
-    }
 
     const bracketPlayer = new BracketPlayer();
     bracketPlayer.bracket = bracket;
@@ -131,15 +135,15 @@ export class BracketsService {
     return await this.bracketPlayersRepository.save(bracketPlayer);
   }
 
-  async findPlayers(id: string) {
+  async findPlayers(id: string): Promise<BracketPlayer[]> {
     const bracket = await this.findOneById(id);
-    if (!bracket) {
-      throw new NotFoundException('Bracket not found');
-    }
     return bracket.players;
   }
 
-  async removePlayer(bracketId: string, bracketPlayerId: string) {
+  async removePlayer(
+    bracketId: string,
+    bracketPlayerId: string,
+  ): Promise<void> {
     const bracket = await this.findOneById(bracketId);
     if (!bracket) {
       throw new NotFoundException('Bracket not found');
@@ -160,6 +164,25 @@ export class BracketsService {
     });
 
     await this.updateBracketSeedingAfterRemove(updatedPlayers);
+  }
+
+  async findBracketMatches(bracketId: string): Promise<Match[]> {
+    const bracket = await this.bracketsRepository.findOne({
+      where: { id: bracketId },
+      relations: {
+        matches: { players: { bracketPlayer: { user: true } } },
+      },
+      order: {
+        matches: {
+          roundNumber: { direction: 'ASC' },
+          roundMatchNumber: { direction: 'ASC' },
+        },
+      },
+    });
+    if (!bracket) {
+      throw new NotFoundException('Bracket not found');
+    }
+    return bracket.matches;
   }
 
   async updateBracketSeeding(
@@ -184,30 +207,67 @@ export class BracketsService {
     }
   }
 
-  async generateBracket(bracketId: string) {
+  async deleteBracketMatches(bracket: Bracket) {
+    if (bracket.matches.length < 1) {
+      return;
+    }
+    await this.matchesRepository.delete(
+      bracket.matches.map((match) => match.id),
+    );
+  }
+
+  async generateBracket(bracketId: string): Promise<void> {
     const bracket = await this.bracketsRepository.findOne({
       where: { id: bracketId },
-      relations: { players: true },
+      relations: { players: true, matches: true },
+      order: { players: { seed: 'ASC' } },
     });
     if (!bracket) {
       throw new NotFoundException('Bracket not found');
     }
-    // const players = await this.bracketPlayersRepository.find({where: {bracket: {id: bracket.id}}})
 
     const players = bracket.players;
-    // if (players.length < 2) {
-    //   throw new Error('Minimum 2 players are required to generate a bracket');
-    // }
+    if (players.length < 2) {
+      return;
+    }
+
+    await this.deleteBracketMatches(bracket);
 
     const generator: BracketGenerator = BracketMatchGeneratorFactory.create(
       bracket.type,
     );
 
-    const matches = generator.generate(bracket, players);
+    let matches: Match[] = generator.generateMatches(bracket);
     console.log(matches.length);
 
-    // const seeding = generateBracketOrder(nearestPowerOfTwo);
-    // console.log(seeding);
-    // return matches;
+    matches = await this.matchesRepository.save(matches);
+
+    let matchPlayers: MatchPlayer[] = generator.generateFirstRoundMatchPlayers(
+      matches,
+      players,
+    );
+
+    matchPlayers = await this.matchPlayersRepository.save(matchPlayers);
+
+    for (const matchPlayer of matchPlayers) {
+      if (matchPlayer.isWinner) {
+        if (
+          matchPlayer.match.winnerNextMatch &&
+          matchPlayer.match.winnerNextSlot
+        ) {
+          const nextMatchPlayer = createMatchPlayer(
+            matchPlayer.match.winnerNextMatch,
+            matchPlayer.bracketPlayer,
+            matchPlayer.match.winnerNextSlot,
+            false,
+          );
+          await this.matchPlayersRepository.save(nextMatchPlayer);
+        }
+        matchPlayer.match.state = MatchState.COMPLETED;
+      } else {
+        matchPlayer.match.state = MatchState.READY;
+      }
+      await this.matchesRepository.save(matchPlayer.match);
+    }
   }
 }
