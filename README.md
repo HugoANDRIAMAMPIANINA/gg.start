@@ -2,6 +2,21 @@
 
 ## A propos
 
+## Configuration
+
+A la racine du répertoire du projet gg.start, créer un fichier **.env** avec le contenu suivant
+```.env
+API_PORT=<inserer_ici>
+POSTGRES_PASSWORD=<inserer_ici>
+POSTGRES_USER=<inserer_ici>
+POSTGRES_DB=<inserer_ici>
+POSTGRES_HOST=<inserer_ici>
+POSTGRES_PORT=<inserer_ici>
+```
+Remplacez les **<inserer_ici>** par vos propres variables de configuration
+
+`ATTENTION : Le port de la base de données PostgreSQL et le port de l'API doivent être différents`
+
 ## Lancement
 
 A la racine du répertoire du projet gg.start

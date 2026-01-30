@@ -55,12 +55,11 @@ export class BracketsService {
       case 'SINGLE_ELIM':
         bracket.type = BracketType.SINGLE_ELIM;
         break;
+
       case 'DOUBLE_ELIM':
         bracket.type = BracketType.DOUBLE_ELIM;
         break;
-      case 'ROUND_ROBIN':
-        bracket.type = BracketType.ROUND_ROBIN;
-        break;
+
       default:
         throw new BadRequestException();
     }
