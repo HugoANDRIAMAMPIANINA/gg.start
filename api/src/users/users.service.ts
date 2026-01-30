@@ -14,7 +14,7 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const user: User = new User();
+    let user: User = new User();
     user.name = createUserDto.name;
     user.email = createUserDto.email;
 
@@ -22,25 +22,46 @@ export class UsersService {
     const hash = await bcrypt.hash(createUserDto.password, saltOrRounds);
     user.passwordHash = hash;
 
-    const newUser = await this.usersRepository.save(user);
-    const newUserWithoutPassword = await this.findOne(newUser.id);
+    user = await this.usersRepository.save(user);
 
-    return newUserWithoutPassword;
+    const { passwordHash, ...result } = user; // Retire le hash du mot de passe de l'objet
+
+    return result;
   }
 
   findAll(): Promise<User[]> {
     return this.usersRepository.find();
   }
 
-  findOne(id: string): Promise<User | null> {
-    return this.usersRepository.findOneBy({ id });
-  }
-
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.usersRepository.findOneBy({ id });
+  async findOneById(id: string): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id: id } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
+    return user;
+  }
+
+  async findOneByName(name: string): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { name: name } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
+  async findOneByEmail(email: string): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { email: email },
+      select: { id: true, name: true, email: true, passwordHash: true },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.findOneById(id);
     const newName = updateUserDto.name;
     if (newName) {
       user.name = newName;

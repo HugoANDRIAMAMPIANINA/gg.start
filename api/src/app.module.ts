@@ -2,17 +2,15 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TournamentsModule } from './tournaments/tournaments.module';
 import { BracketsModule } from './brackets/brackets.module';
 import { MatchesModule } from './matches/matches.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: './../.env',
-      isGlobal: true, // optional but recommended
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -29,11 +27,10 @@ import { MatchesModule } from './matches/matches.module';
       }),
     }),
     UsersModule,
+    AuthModule,
     TournamentsModule,
     BracketsModule,
     MatchesModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

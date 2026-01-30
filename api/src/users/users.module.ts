@@ -13,5 +13,6 @@ import { Bracket } from 'src/brackets/entities/bracket.entity';
   ],
   controllers: [UsersController],
   providers: [UsersService],
+  exports: [UsersService],
 })
 export class UsersModule {}
