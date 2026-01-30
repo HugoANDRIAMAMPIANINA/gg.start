@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 interface Player {
-  playerId: string;
+  bracketPlayerId: string;
   seed: number;
 }
 

@@ -15,8 +15,7 @@ import { User } from 'src/users/entities/user.entity';
 import { BracketPlayer } from 'src/bracket-players/entities/bracket-player.entity';
 import { UpdatePlayersSeedingDto } from './dto/update-players-seeding.dto';
 import { BracketGenerator } from './bracket-generation/bracket-generator.interface';
-import { BracketMatchGeneratorFactory } from './bracket-generation/bracket-generator.factory';
-import generateBracketOrder from 'src/common/helpers/generate-bracket-order';
+import { BracketGeneratorFactory } from './bracket-generation/bracket-generator.factory';
 import { Match } from 'src/matches/entities/match.entity';
 import { MatchPlayer } from 'src/match-players/entities/match-player.entity';
 import createMatchPlayer from 'src/match-players/helpers/create-match-player';
@@ -197,7 +196,7 @@ export class BracketsService {
     const players = updatePlayersSeedingDto.players;
     for (const player of players) {
       const bracketPlayer = await this.bracketPlayersRepository.findOneBy({
-        id: player.playerId,
+        id: player.bracketPlayerId,
       });
 
       if (bracketPlayer) {
@@ -233,7 +232,7 @@ export class BracketsService {
 
     await this.deleteBracketMatches(bracket);
 
-    const generator: BracketGenerator = BracketMatchGeneratorFactory.create(
+    const generator: BracketGenerator = BracketGeneratorFactory.create(
       bracket.type,
     );
 

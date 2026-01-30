@@ -7,7 +7,7 @@ import { Bracket } from 'src/brackets/entities/bracket.entity';
 import { MatchPlayer } from 'src/match-players/entities/match-player.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Match, Bracket, Match, MatchPlayer])],
+  imports: [TypeOrmModule.forFeature([Match, Bracket, MatchPlayer])],
   controllers: [MatchesController],
   providers: [MatchesService],
 })
