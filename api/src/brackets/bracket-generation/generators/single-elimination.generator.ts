@@ -5,7 +5,6 @@ import { BracketGenerator } from '../bracket-generator.interface';
 import { MatchPlayer } from 'src/match-players/entities/match-player.entity';
 import generateBracketOrder from 'src/common/helpers/generate-bracket-order';
 import createMatchPlayer from 'src/match-players/helpers/create-match-player';
-import { MatchState } from 'src/common/enums/match-state.enum';
 
 export class SingleEliminationGenerator implements BracketGenerator {
   generateMatches(bracket: Bracket): Match[] {

@@ -7,10 +7,11 @@ import {
   Unique,
 } from 'typeorm';
 import { BracketPlayer } from '../../bracket-players/entities/bracket-player.entity';
+import { ScorableComponent } from 'src/common/interfaces/scorable_component.interface';
 
 @Entity()
 @Unique(['match', 'slot'])
-export class MatchPlayer {
+export class MatchPlayer implements ScorableComponent {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -34,4 +35,12 @@ export class MatchPlayer {
 
   @Column({ default: false })
   isWinner: boolean;
+
+  getTotalScore(): number {
+    return this.score;
+  }
+
+  getWinCount(): number {
+    return this.isWinner ? 1 : 0;
+  }
 }

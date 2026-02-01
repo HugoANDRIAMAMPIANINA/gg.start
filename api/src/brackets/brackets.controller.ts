@@ -18,8 +18,6 @@ import { Public } from 'src/auth/decorators/public.decorator';
 import { Role } from 'src/roles/enums/role.enum';
 import { Roles } from 'src/roles/decorators/roles.decorator';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { Bracket } from './entities/bracket.entity';
-import { BracketState } from 'src/common/enums/bracket-state.enum';
 
 @Controller('brackets')
 export class BracketsController {
@@ -91,6 +89,16 @@ export class BracketsController {
 
     await this.bracketsService.generateBracket(bracketId);
     return;
+  }
+
+  @Public()
+  @HttpCode(HttpStatus.ACCEPTED)
+  @Get(':bracketId/players/:bracketPlayerId')
+  getPlayerStats(
+    @Param('bracketId') bracketId: string,
+    @Param('bracketPlayerId') bracketPlayerId: string,
+  ) {
+    return this.bracketsService.getPlayerStats(bracketId, bracketPlayerId);
   }
 
   @Public()

@@ -267,4 +267,21 @@ export class BracketsService {
       await this.matchesRepository.save(matchPlayer.match);
     }
   }
+
+  async getPlayerStats(bracketId: string, bracketPlayerId: string) {
+    await this.findOneById(bracketId);
+    const bracketPlayer = await this.bracketPlayersRepository.findOne({
+      where: { id: bracketPlayerId },
+      select: { matchPlayers: true },
+      relations: { matchPlayers: true },
+    });
+    if (!bracketPlayer) {
+      throw new NotFoundException('BracketPlayer not found');
+    }
+    return {
+      totalScore: bracketPlayer.getTotalScore(),
+      totalWins: bracketPlayer.getWinCount(),
+      totalPlayedMatches: bracketPlayer.matchPlayers.length,
+    };
+  }
 }
