@@ -9,7 +9,7 @@ import { Bracket } from './entities/bracket.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tournament } from 'src/tournaments/entities/tournament.entity';
 import { Repository } from 'typeorm';
-import { BracketType } from 'src/common/enum/bracket-type.enum';
+import { BracketType } from 'src/common/enums/bracket-type.enum';
 import { CreateBracketPlayerDto } from 'src/bracket-players/dto/create-bracket-player.dto';
 import { User } from 'src/users/entities/user.entity';
 import { BracketPlayer } from 'src/bracket-players/entities/bracket-player.entity';
@@ -19,7 +19,7 @@ import { BracketGeneratorFactory } from './bracket-generation/bracket-generator.
 import { Match } from 'src/matches/entities/match.entity';
 import { MatchPlayer } from 'src/match-players/entities/match-player.entity';
 import createMatchPlayer from 'src/match-players/helpers/create-match-player';
-import { MatchState } from 'src/common/enum/match-state.enum';
+import { MatchState } from 'src/common/enums/match-state.enum';
 
 @Injectable()
 export class BracketsService {
@@ -236,7 +236,6 @@ export class BracketsService {
     );
 
     let matches: Match[] = generator.generateMatches(bracket);
-    console.log(matches.length);
 
     matches = await this.matchesRepository.save(matches);
 

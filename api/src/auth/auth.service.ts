@@ -25,6 +25,7 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       username: user.name,
+      organizedTournaments: user.organizedTournaments,
     };
 
     return {

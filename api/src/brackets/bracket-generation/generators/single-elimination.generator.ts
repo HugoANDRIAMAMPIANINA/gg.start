@@ -5,7 +5,7 @@ import { BracketGenerator } from '../bracket-generator.interface';
 import { MatchPlayer } from 'src/match-players/entities/match-player.entity';
 import generateBracketOrder from 'src/common/helpers/generate-bracket-order';
 import createMatchPlayer from 'src/match-players/helpers/create-match-player';
-import { MatchState } from 'src/common/enum/match-state.enum';
+import { MatchState } from 'src/common/enums/match-state.enum';
 
 export class SingleEliminationGenerator implements BracketGenerator {
   generateMatches(bracket: Bracket): Match[] {
@@ -58,12 +58,10 @@ export class SingleEliminationGenerator implements BracketGenerator {
     }
 
     const bracketOrder: number[] = generateBracketOrder(nearestPowerOfTwo);
-    console.log(bracketOrder);
 
     matches = matches
       .filter((match) => match.roundNumber === 1)
       .sort((a, b) => a.roundMatchNumber - b.roundMatchNumber);
-    console.log(`Nombre de matchs du round 1: ${matches.length}`);
 
     // bracketOrder.map((seed));
     matches.map((match, index) => {

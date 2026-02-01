@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -8,9 +9,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Match } from './entities/match.entity';
 import { MatchPlayer } from 'src/match-players/entities/match-player.entity';
 import { SetMatchScoreDto } from './dto/set-match-score.dto';
-import { MatchState } from 'src/common/enum/match-state.enum';
+import { MatchState } from 'src/common/enums/match-state.enum';
 import { BracketPlayer } from 'src/bracket-players/entities/bracket-player.entity';
-import { BracketState } from 'src/common/enum/bracket-state.enum';
+import { BracketState } from 'src/common/enums/bracket-state.enum';
 import { Bracket } from 'src/brackets/entities/bracket.entity';
 
 @Injectable()
@@ -38,7 +39,12 @@ export class MatchesService {
   async findOneByIdWithBracket(id: string) {
     const match = await this.matchesRepository.findOne({
       where: { id: id },
-      relations: { players: { bracketPlayer: true }, bracket: true },
+      relations: {
+        players: { bracketPlayer: true },
+        bracket: true,
+        winnerNextMatch: true,
+        loserNextMatch: true,
+      },
     });
     if (!match) {
       throw new NotFoundException('Match not found');
@@ -46,12 +52,29 @@ export class MatchesService {
     return match;
   }
 
+  async updateMatchState(match: Match, matchState: MatchState) {
+    match.state = matchState;
+    await this.matchesRepository.save(match);
+  }
+
+  async markMatchAsOngoing(id: string) {
+    const match = await this.findOneById(id);
+    if (match.state !== MatchState.READY) {
+      throw new ConflictException({
+        message: 'Invalid MatchState transition',
+        currentState: match.state,
+        requiredState: MatchState.READY,
+      });
+    }
+    await this.updateMatchState(match, MatchState.ONGOING);
+  }
+
   async setMatchScore(id: string, setMatchScoreDto: SetMatchScoreDto) {
     const match = await this.findOneByIdWithBracket(id);
 
-    // if (match.state !== MatchState.ONGOING) {
-    //   throw new BadRequestException('Match is not ongoing');
-    // }
+    if (match.state !== MatchState.ONGOING) {
+      throw new BadRequestException('Match is not ongoing');
+    }
 
     const matchPlayers: MatchPlayer[] = [];
 
@@ -77,8 +100,7 @@ export class MatchesService {
     const winner = player1.score > player2.score ? player1 : player2;
     const loser = winner === player1 ? player2 : player1;
 
-    match.state = MatchState.COMPLETED;
-    await this.matchesRepository.save(match);
+    await this.updateMatchState(match, MatchState.COMPLETED);
 
     // Send winner to its next match
     if (match.winnerNextMatch && match.winnerNextSlot) {
@@ -108,7 +130,7 @@ export class MatchesService {
     nextMatch: Match,
     nextMatchSlot: number,
   ) {
-    // create new MatchPlayer
+    // Crée un nouveau MatchPlayer
     const matchPlayer = new MatchPlayer();
     matchPlayer.bracketPlayer = bracketPlayer;
     matchPlayer.match = nextMatch;

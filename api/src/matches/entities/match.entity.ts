@@ -1,5 +1,5 @@
 import { Bracket } from 'src/brackets/entities/bracket.entity';
-import { MatchState } from 'src/common/enum/match-state.enum';
+import { MatchState } from 'src/common/enums/match-state.enum';
 import { MatchPlayer } from 'src/match-players/entities/match-player.entity';
 import {
   Column,

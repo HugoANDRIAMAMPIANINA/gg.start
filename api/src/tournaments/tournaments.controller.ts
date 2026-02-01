@@ -6,45 +6,65 @@ import {
   Patch,
   Param,
   Delete,
+  HttpStatus,
+  HttpCode,
 } from '@nestjs/common';
 import { TournamentsService } from './tournaments.service';
 import { CreateTournamentDto } from './dto/create-tournament.dto';
 import { UpdateTournamentDto } from './dto/update-tournament.dto';
+import { Public } from 'src/auth/decorators/public.decorator';
+import { Roles } from 'src/roles/decorators/roles.decorator';
+import { Role } from 'src/roles/enums/role.enum';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('tournaments')
 export class TournamentsController {
   constructor(private readonly tournamentsService: TournamentsService) {}
 
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.CREATED)
   @Post()
   create(@Body() createTournamentDto: CreateTournamentDto) {
     return this.tournamentsService.create(createTournamentDto);
   }
 
+  @Public()
+  @HttpCode(HttpStatus.OK)
   @Get()
   findAll() {
     return this.tournamentsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tournamentsService.findOneById(id);
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Get(':tournamentId')
+  findOne(@Param('tournamentId') tournamentId: string) {
+    return this.tournamentsService.findOneById(tournamentId);
   }
 
+  @Public()
+  @HttpCode(HttpStatus.OK)
   @Get('/name/:name')
   findByName(@Param('name') name: string) {
     return this.tournamentsService.findByName(name);
   }
 
-  @Patch(':id')
+  @ApiBearerAuth()
+  @Roles(Role.TOURNAMENT_ORGANIZER)
+  @HttpCode(HttpStatus.OK)
+  @Patch(':tournamentId')
   update(
-    @Param('id') id: string,
+    @Param('tournamentId') tournamentId: string,
     @Body() updateTournamentDto: UpdateTournamentDto,
   ) {
-    return this.tournamentsService.update(id, updateTournamentDto);
+    return this.tournamentsService.update(tournamentId, updateTournamentDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.tournamentsService.remove(id);
+  @ApiBearerAuth()
+  @Roles(Role.TOURNAMENT_ORGANIZER)
+  @HttpCode(HttpStatus.ACCEPTED)
+  @Delete(':tournamentId')
+  remove(@Param('tournamentId') tournamentId: string) {
+    return this.tournamentsService.remove(tournamentId);
   }
 }

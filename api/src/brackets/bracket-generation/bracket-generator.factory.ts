@@ -1,4 +1,4 @@
-import { BracketType } from 'src/common/enum/bracket-type.enum';
+import { BracketType } from 'src/common/enums/bracket-type.enum';
 import { BracketGenerator } from './bracket-generator.interface';
 import { SingleEliminationGenerator } from './generators/single-elimination.generator';
 import { DoubleEliminationGenerator } from './generators/double-elimination.generator';

@@ -5,11 +5,11 @@ import {
   ManyToOne,
   OneToMany,
 } from 'typeorm';
-import { BracketType } from 'src/common/enum/bracket-type.enum';
+import { BracketType } from 'src/common/enums/bracket-type.enum';
 import { Tournament } from 'src/tournaments/entities/tournament.entity';
 import { BracketPlayer } from 'src/bracket-players/entities/bracket-player.entity';
 import { Match } from 'src/matches/entities/match.entity';
-import { BracketState } from 'src/common/enum/bracket-state.enum';
+import { BracketState } from 'src/common/enums/bracket-state.enum';
 
 @Entity()
 export class Bracket {

@@ -24,7 +24,7 @@ export class UsersService {
 
     user = await this.usersRepository.save(user);
 
-    const { passwordHash, ...result } = user; // Retire le hash du mot de passe de l'objet
+    const { passwordHash, ...result } = user; // Retire le hash du mot de passe de l'objet pour ne pas l'envoyer dans la requête
 
     return result;
   }
@@ -52,7 +52,30 @@ export class UsersService {
   async findOneByEmail(email: string): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { email: email },
-      select: { id: true, name: true, email: true, passwordHash: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        passwordHash: true,
+      },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
+  async findOneByIdWithOrganizedTournaments(id: string): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { id: id },
+      select: {
+        id: true,
+        organizedTournaments: {
+          id: true,
+          brackets: { id: true, matches: { id: true } },
+        },
+      },
+      relations: { organizedTournaments: { brackets: { matches: true } } },
     });
     if (!user) {
       throw new NotFoundException('User not found');
