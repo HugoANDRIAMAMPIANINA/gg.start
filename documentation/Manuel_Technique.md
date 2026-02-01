@@ -102,7 +102,45 @@ Cette implémentation permet ainsi d'ajouter de nouveau types de tournoi sans mo
 
 #### Utilisation
 
-a
+Le framework NestJS utilise des décorateurs
+
+Un cas d'utilisation de décorateur est l'accès aux routes API, ce qui permet de restreindre l'accès à certains utilisateurs.
+Dans notre cas, il existe plusieurs utilisateurs :
+| Type d'utilisateur                              | Actions possibles                                                                                                                                 |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Utilisateur non connecté                        | peut accéder aux tournois, arbres et matchs (seulement en lecture)                                                                                |
+| Utilisateur connecté                            | peut accéder à son profil, créer des tournois, s'inscrire à des arbres de tournois, en plus des actions possibles par un utilisateur non connecté |
+| Utilisateur connecté et organisateur du tournoi | peut gérer ses tournois, arbres et matchs (création/modification/suppression), en plus des actions possibles par un utilisateur connecté          |
+
+Selon les routes, un utilisateur spécifique est visé :
+
+| Route                                             | Méthode | Accès restreint                                                                                 |
+| ------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------- |
+| `/users`                                          | POST    | ❌ Non                                                                                           |
+| `/users`                                          | GET     | ✅ Oui                                                                                           |
+| `/users/{id}`                                     | GET     | ✅ Oui                                                                                           |
+| `/users/{id}`                                     | DELETE  | ✅ Oui                                                                                           |
+| `/auth/login`                                     | POST    | ❌ Non                                                                                           |
+| `/auth/me`                                        | GET     | ✅ Oui                                                                                           |
+| `/tournaments`                                    | POST    | ✅ Oui                                                                                           |
+| `/tournaments`                                    | GET     | ❌ Non                                                                                           |
+| `/tournaments/{id}`                               | GET     | ❌ Non                                                                                           |
+| `/tournaments/{id}`                               | PATCH   | ✅ Oui réservé à l'organisateur du tournoi                                                       |
+| `/tournaments/{id}`                               | DELETE  | ✅ Oui réservé à l'organisateur du tournoi                                                       |
+| `/tournaments/name/{name}`                        | GET     | ❌ Non                                                                                           |
+| `/brackets`                                       | POST    | ✅ Oui réservé à l'organisateur du tournoi                                                       |
+| `/brackets/{bracketId}`                           | GET     | ❌ Non                                                                                           |
+| `/brackets/{bracketId}`                           | PATCH   | ✅ Oui réservé à l'organisateur du tournoi                                                       |
+| `/brackets/{bracketId}`                           | DELETE  | ✅ Oui réservé à l'organisateur du tournoi                                                       |
+| `/brackets/{bracketId}/players`                   | POST    | ✅ Oui                                                                                           |
+| `/brackets/{bracketId}/players`                   | GET     | ❌ Non                                                                                           |
+| `/brackets/{bracketId}/players/{bracketPlayerId}` | DELETE  | ✅ Oui réservé à l'organisateur du tournoi (un participant ne peut pas se désinscrire tout seul) |
+| `/brackets/{bracketId}/matches`                   | GET     | ❌ Non                                                                                           |
+| `/brackets/{bracketId}/update-seeding`            | POST    | ✅ Oui réservé à l'organisateur du tournoi                                                       |
+| `/brackets/{bracketId}/generate`                  | POST    | A RETIRER EN PROD - SERT UNIQUEMENT DE TEST                                                     |
+| `/matches/{matchId}`                              | GET     | ❌ Non                                                                                           |
+| `/matches/{matchId}/set-score`                    | POST    | ✅ Oui réservé à l'organisateur du tournoi                                                       |
+
 
 #### Implémentation
 
@@ -116,12 +154,12 @@ L'idée était bonne en théorie mais lors du développement, nous nous sommes r
 
 - Chaque State devait exécuter une méthode avec des paramètres différents :
 
-| État      | Description                                                  | Action                                                                                   | Paramètres |
-| --------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------- | --- |
+| État      | Description                                                  | Action                                                                                   | Paramètres           |
+| --------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------- | -------------------- |
 | PENDING   | Match créé mais les joueurs ne sont pas encore tous affectés | Si tous les joueurs sont affectés, on passe à l'état **READY**                           | Match ou ses joueurs |
-| READY     | Joueurs définis, match attend d'être manuellement démarré    | On passe à l'état **ONGOING**                                                            | N/A |
-| ONGOING   | Match en cours                                               | On met à jour le score de chaque joueur (MatchPlayer) et on passe à l'état **COMPLETED** | Score du match |
-| COMPLETED | Match terminé, scores figés                                  | On ne fait rien                                                                          | N/A |
+| READY     | Joueurs définis, match attend d'être manuellement démarré    | On passe à l'état **ONGOING**                                                            | N/A                  |
+| ONGOING   | Match en cours                                               | On met à jour le score de chaque joueur (MatchPlayer) et on passe à l'état **COMPLETED** | Score du match       |
+| COMPLETED | Match terminé, scores figés                                  | On ne fait rien                                                                          | N/A                  |
 
 Ainsi, nous aurions eu les State suivants :
 

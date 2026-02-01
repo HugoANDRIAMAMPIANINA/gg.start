@@ -7,11 +7,14 @@
 A la racine du répertoire du projet gg.start, créer un fichier **.env** avec le contenu suivant
 ```.env
 API_PORT=<inserer_ici>
+
 POSTGRES_PASSWORD=<inserer_ici>
 POSTGRES_USER=<inserer_ici>
 POSTGRES_DB=<inserer_ici>
 POSTGRES_HOST=<inserer_ici>
 POSTGRES_PORT=<inserer_ici>
+
+JWT_SECRET=<inserer_ici>
 ```
 Remplacez les **<inserer_ici>** par vos propres variables de configuration
 

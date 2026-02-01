@@ -4,6 +4,12 @@
   - [Technologies utilisées](#technologies-utilisées)
     - [Back-End](#back-end)
     - [Persistance des données](#persistance-des-données)
+  - [Schéma de la base de données](#schéma-de-la-base-de-données)
+  - [Domain Driven Design (DDD)](#domain-driven-design-ddd)
+    - [Ubiquitous Language](#ubiquitous-language)
+    - [Bounded Context](#bounded-context)
+    - [Entities](#entities)
+    - [Services Objects](#services-objects)
 
 ## Technologies utilisées
 
@@ -26,8 +32,25 @@
   - Test:
     - [jest](https://jestjs.io/): Framework JavaScript de test
     - [@nestjs/testing](https://github.com/nestjs/testing): Module Nest pour les tests
+  - Authentification
+    - [@nestjs/jwt](https://github.com/nestjs/jwt): Module Nest pour manipuler des JWT
 
 ### Persistance des données
 
 - Base de données
   - [PostgreSQL](https://www.postgresql.org/): Système de gestion de base de données relationnelle SQL Open Source
+
+## Schéma de la base de données
+
+![Schéma de la base de données](./images/gg_start_database_schema.png)
+
+## Domain Driven Design (DDD)
+
+### Ubiquitous Language
+![Ubiquitous Language](./images/ddd_ubiquitous_language.png)
+### Bounded Context
+![Bounded Context](./images/ddd_bounded_context.png)
+### Entities
+![Entities](./images/ddd_entities.png)
+### Services Objects
+![Services Objects](./images/ddd_services_objects.png)
