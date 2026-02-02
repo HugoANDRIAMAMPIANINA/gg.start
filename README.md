@@ -1,5 +1,16 @@
 # gg.start
 
+Application web de création et de gestion de tournois inspirée de `start.gg` et `challonge.com`.
+
+## Équipe
+
+- Hugo ANDRIAMAMPIANINA
+- Bénédict NENERT
+
+## Vision du projet
+
+gg.start est une plateforme web permettant à n'importe quel utilisateur d'organiser et de participer à des tournois en ligne. L'application gère automatiquement la génération des brackets, le suivi des matchs et le classement des participants.
+
 ## Configuration
 
 A la racine du répertoire du projet gg.start, créer un fichier **.env** avec le contenu suivant
