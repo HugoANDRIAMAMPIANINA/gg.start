@@ -8,6 +8,8 @@ import { Bracket } from './entities/bracket.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Match } from 'src/matches/entities/match.entity';
 import { MatchPlayer } from 'src/match-players/entities/match-player.entity';
+import { TournamentsModule } from 'src/tournaments/tournaments.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { MatchPlayer } from 'src/match-players/entities/match-player.entity';
       Match,
       MatchPlayer,
     ]),
+    TournamentsModule,
+    UsersModule,
   ],
   controllers: [BracketsController],
   providers: [BracketsService],

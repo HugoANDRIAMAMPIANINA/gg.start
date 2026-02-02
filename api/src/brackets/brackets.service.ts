@@ -20,16 +20,18 @@ import { Match } from 'src/matches/entities/match.entity';
 import { MatchPlayer } from 'src/match-players/entities/match-player.entity';
 import createMatchPlayer from 'src/match-players/helpers/create-match-player';
 import { MatchState } from 'src/common/enums/match-state.enum';
+import { TournamentsService } from 'src/tournaments/tournaments.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class BracketsService {
   constructor(
+    private tournamentsService: TournamentsService,
+    private usersService: UsersService,
+
     @InjectRepository(Bracket)
     private bracketsRepository: Repository<Bracket>,
-    @InjectRepository(Tournament)
-    private tournamentsRepository: Repository<Tournament>,
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
+
     @InjectRepository(BracketPlayer)
     private bracketPlayersRepository: Repository<BracketPlayer>,
     @InjectRepository(Match)
@@ -39,9 +41,9 @@ export class BracketsService {
   ) {}
 
   async create(createBracketDto: CreateBracketDto): Promise<Bracket> {
-    const tournament = await this.tournamentsRepository.findOneBy({
-      id: createBracketDto.tournamentId,
-    });
+    const tournament: Tournament = await this.tournamentsService.findOneById(
+      createBracketDto.tournamentId,
+    );
     if (!tournament) {
       throw new NotFoundException('Tournament not found');
     }
@@ -116,12 +118,9 @@ export class BracketsService {
     id: string,
     createBracketPlayerDto: CreateBracketPlayerDto,
   ): Promise<BracketPlayer> {
-    const user = await this.usersRepository.findOneBy({
-      id: createBracketPlayerDto.userId,
-    });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    const user: User = await this.usersService.findOneById(
+      createBracketPlayerDto.userId,
+    );
 
     const bracket = await this.findOneById(id);
 

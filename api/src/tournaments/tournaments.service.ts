@@ -16,10 +16,8 @@ export class TournamentsService {
     private tournamentsRepository: Repository<Tournament>,
   ) {}
 
-  async create(createTournamentDto: CreateTournamentDto) {
-    const organizer: User = await this.userService.findOneById(
-      createTournamentDto.organizerId,
-    );
+  async create(createTournamentDto: CreateTournamentDto, organizerId: string) {
+    const organizer: User = await this.userService.findOneById(organizerId);
 
     const tournament: Tournament = new Tournament();
     tournament.name = createTournamentDto.name;

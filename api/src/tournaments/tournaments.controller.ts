@@ -8,6 +8,7 @@ import {
   Delete,
   HttpStatus,
   HttpCode,
+  Request,
 } from '@nestjs/common';
 import { TournamentsService } from './tournaments.service';
 import { CreateTournamentDto } from './dto/create-tournament.dto';
@@ -24,8 +25,9 @@ export class TournamentsController {
   @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  create(@Body() createTournamentDto: CreateTournamentDto) {
-    return this.tournamentsService.create(createTournamentDto);
+  create(@Request() req, @Body() createTournamentDto: CreateTournamentDto) {
+    const organizerId: string = req.user.sub;
+    return this.tournamentsService.create(createTournamentDto, organizerId);
   }
 
   @Public()

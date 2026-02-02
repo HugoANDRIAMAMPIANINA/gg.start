@@ -6,7 +6,4 @@ export class CreateTournamentDto {
 
   @ApiProperty()
   description: string | null;
-
-  @ApiProperty()
-  organizerId: string;
 }
