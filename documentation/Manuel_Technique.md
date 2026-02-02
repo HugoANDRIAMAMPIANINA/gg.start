@@ -264,7 +264,7 @@ Grâce à ce pattern, **un BracketPlayer peut calculer son score total en délé
 Une interface commune définit le contrat de calcul :
 
 ```ts
-export interface IScorableComponent {
+export interface ScorableComponent {
   getTotalScore(): number;
   getWinCount(): number;
 }
@@ -274,7 +274,7 @@ export interface IScorableComponent {
 
 ```ts
 @Entity()
-export class MatchPlayer implements IScorableComponent {
+export class MatchPlayer implements ScorableComponent {
   @Column({ default: 0 })
   score: number;
 
@@ -296,7 +296,7 @@ export class MatchPlayer implements IScorableComponent {
 
 ```ts
 @Entity()
-export class BracketPlayer implements IScorableComponent {
+export class BracketPlayer implements ScorableComponent {
   @OneToMany(() => MatchPlayer, (matchPlayer) => matchPlayer.bracketPlayer)
   matchPlayers: MatchPlayer[];
 
