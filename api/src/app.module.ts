@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RolesGuard } from 'src/roles/roles.guard';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { RolesGuard } from 'src/roles/roles.guard';
     BracketsModule,
     MatchesModule,
   ],
+  controllers: [AppController],
   providers: [
     {
       provide: APP_GUARD,

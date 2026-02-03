@@ -10,6 +10,10 @@
     - [Bounded Context](#bounded-context)
     - [Entities](#entities)
     - [Services Objects](#services-objects)
+  - [Diagramme C4](#diagramme-c4)
+    - [System context diagram](#system-context-diagram)
+    - [Container diagram](#container-diagram)
+    - [Component diagram](#component-diagram)
 
 ## Technologies utilisées
 
@@ -48,9 +52,23 @@
 
 ### Ubiquitous Language
 ![Ubiquitous Language](./images/ddd_ubiquitous_language.png)
+
 ### Bounded Context
 ![Bounded Context](./images/ddd_bounded_context.png)
+
 ### Entities
 ![Entities](./images/ddd_entities.png)
+
 ### Services Objects
 ![Services Objects](./images/ddd_services_objects.png)
+
+## Diagramme C4
+
+### System context diagram
+![System context diagram](./images/System%20context%20diagram.png)
+
+### Container diagram
+![Container diagram](./images/Container%20diagram.png)
+
+### Component diagram
+![Component diagram](./images/Component%20diagram.png)
