@@ -151,3 +151,11 @@ Pour respecter les délais, concentrez-vous sur :
 - Validation croisée des scores
 - Formats Swiss/Round-robin
 - Chat intégré
+
+### notes importantes 
+- Tous les tests unitaires se trouvent sur la branche 'testUnit'.
+```git switch testUnit```
+Pour lancer les tests sur cette branche, il faut être sur le dossier 'api' 
+```cd api```
+puis lancer la commande suivante.
+```npm run test:cov```
