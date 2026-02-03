@@ -53,7 +53,7 @@ npm run start:dev
 - Pour vous familiariser l'API gg.start, visitez http://127.0.0.1:<API_PORT>/api/
   - Elle contient une documentation OpenAPI/Swagger permettant de tester toutes les requêtes disponibles et de comprendre à quoi elles servent
 =======
-### notes importantes 
+### Notes importantes 
 - Tous les tests unitaires se trouvent sur la branche 'testUnit'.
 ```bash 
 git switch testUnit
