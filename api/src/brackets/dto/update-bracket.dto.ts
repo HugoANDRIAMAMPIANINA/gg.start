@@ -1,4 +1,15 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateBracketDto } from './create-bracket.dto';
+import { ApiProperty } from '@nestjs/swagger';
 
-export class UpdateBracketDto extends PartialType(CreateBracketDto) {}
+export class UpdateBracketDto {
+  @ApiProperty({
+    type: 'string',
+    description: 'A string representing Bracket name',
+  })
+  name: string;
+
+  @ApiProperty({
+    type: 'string',
+    description: 'A string representing Bracket game',
+  })
+  game: string;
+}

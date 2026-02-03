@@ -7,9 +7,11 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Bracket } from 'src/brackets/entities/bracket.entity';
+import { IsUUID } from 'class-validator';
 
 @Entity()
 export class Tournament {
+  @IsUUID()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

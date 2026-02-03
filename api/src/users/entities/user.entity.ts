@@ -1,15 +1,18 @@
 import { Tournament } from 'src/tournaments/entities/tournament.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { BracketPlayer } from '../../bracket-players/entities/bracket-player.entity';
+import { IsEmail, IsUUID } from 'class-validator';
 
 @Entity()
 export class User {
+  @IsUUID()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
   name: string;
 
+  @IsEmail()
   @Column()
   email: string;
 

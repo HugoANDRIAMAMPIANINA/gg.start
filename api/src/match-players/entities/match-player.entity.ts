@@ -8,10 +8,12 @@ import {
 } from 'typeorm';
 import { BracketPlayer } from '../../bracket-players/entities/bracket-player.entity';
 import { ScorableComponent } from 'src/common/interfaces/scorable_component.interface';
+import { IsBoolean, IsInt, IsUUID } from 'class-validator';
 
 @Entity()
 @Unique(['match', 'slot'])
 export class MatchPlayer implements ScorableComponent {
+  @IsUUID()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -27,12 +29,15 @@ export class MatchPlayer implements ScorableComponent {
   })
   bracketPlayer: BracketPlayer;
 
+  @IsInt()
   @Column()
   slot: number;
 
+  @IsInt()
   @Column({ default: 0 })
   score: number;
 
+  @IsBoolean()
   @Column({ default: false })
   isWinner: boolean;
 

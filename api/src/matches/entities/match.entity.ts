@@ -1,3 +1,4 @@
+import { IsInt, IsUUID } from 'class-validator';
 import { Bracket } from 'src/brackets/entities/bracket.entity';
 import { MatchState } from 'src/common/enums/match-state.enum';
 import { MatchPlayer } from 'src/match-players/entities/match-player.entity';
@@ -11,12 +12,15 @@ import {
 
 @Entity()
 export class Match {
+  @IsUUID()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @IsInt()
   @Column()
   roundNumber: number;
 
+  @IsInt()
   @Column()
   roundMatchNumber: number;
 

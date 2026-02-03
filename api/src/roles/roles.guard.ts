@@ -39,6 +39,16 @@ export class RolesGuard implements CanActivate {
         );
       }
 
+      if (req.body) {
+        const bodyTournamentId: string = req.body.tournamentId;
+        // Si l'ID d'un tournoi est en body de la requête, on vérifie si l'utilisateur connecté est organisateur de ce tournoi
+        if (bodyTournamentId) {
+          isTournamentOrganizer = tounamentOrganizer.organizedTournaments.some(
+            (tournament) => tournament.id === bodyTournamentId,
+          );
+        }
+      }
+
       const bracketId: string = req.params.bracketId;
       // Si l'ID d'un arbre est en paramètre de la requête, on vérifie si l'utilisateur connecté est organisateur du tournoi de cet arbre
       if (bracketId) {

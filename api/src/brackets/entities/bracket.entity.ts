@@ -10,9 +10,11 @@ import { Tournament } from 'src/tournaments/entities/tournament.entity';
 import { BracketPlayer } from 'src/bracket-players/entities/bracket-player.entity';
 import { Match } from 'src/matches/entities/match.entity';
 import { BracketState } from 'src/common/enums/bracket-state.enum';
+import { IsUUID } from 'class-validator';
 
 @Entity()
 export class Bracket {
+  @IsUUID()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

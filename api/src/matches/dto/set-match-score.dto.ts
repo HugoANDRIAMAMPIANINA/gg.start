@@ -8,17 +8,23 @@ import {
 } from 'class-validator';
 
 export class MatchPlayerScoreDto {
-  @ApiProperty({ type: 'string', description: 'A MatchPlayer Id' })
+  @ApiProperty({ type: 'string', description: 'A MatchPlayer UUID' })
   @IsUUID()
   matchPlayerId: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: 'integer',
+    description: 'An integer representing the MatchPlayer score',
+  })
   @IsInt()
   score: number;
 }
 
 export class SetMatchScoreDto {
-  @ApiProperty({ type: [MatchPlayerScoreDto] })
+  @ApiProperty({
+    type: [MatchPlayerScoreDto],
+    description: 'A MatchPlayer UUID and score object',
+  })
   @IsArray()
   @ArrayMinSize(2)
   @ArrayMaxSize(2)

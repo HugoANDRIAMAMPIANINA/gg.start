@@ -1,6 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RemoveBracketPlayerDto {
-  @ApiProperty()
+  @ApiProperty({
+    type: 'string',
+    description: 'A User UUID',
+  })
   userId: string;
 }
