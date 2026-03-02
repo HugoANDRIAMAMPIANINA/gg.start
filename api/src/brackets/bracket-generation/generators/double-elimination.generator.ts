@@ -4,7 +4,7 @@ import { Bracket } from '../../entities/bracket.entity';
 import { BracketGenerator } from '../bracket-generator.interface';
 import { MatchPlayer } from 'src/match-players/entities/match-player.entity';
 
-export class wDoubleEliminationGenerator implements BracketGenerator {
+export class DoubleEliminationGenerator implements BracketGenerator {
   generateFirstRoundMatchPlayers(
     matches: Match[],
     players: BracketPlayer[],

@@ -1,10 +1,10 @@
-import HelloWorld from "@/components/HelloWorld";
+import TournamentsList from "@/components/TournamentsList";
 
 export default function HomeScreen() {
   return (
     <>
       <main>
-        <HelloWorld />
+        <TournamentsList />
       </main>
     </>
   );
