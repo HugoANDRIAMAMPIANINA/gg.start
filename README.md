@@ -36,23 +36,31 @@ Remplacez les **<inserer_ici>** par vos propres variables de configuration
 
 A la racine du répertoire du projet gg.start
 
+Lancement du conteneur de la base de données
 ```bash
-# lancement de la base de données PostgreSQL
 docker compose up -d
 ```
 
+Lancement de l'API
 ```bash
 cd api/
 
 # installation des dépendances
-npm i
-# ou
 bun i
 
 # lancement de l'API en mode développement
-npm run start:dev
-# ou
 bun start:dev
+```
+
+Lancement du front
+```bash
+cd frontend/
+
+# installation des dépendances
+bun i
+
+# lancement de l'API en mode développement
+bun dev
 ```
 
 ## Utilisation
