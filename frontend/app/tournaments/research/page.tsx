@@ -45,9 +45,13 @@ export default function ResearchPage() {
         // Si le jeu ne correspond pas exactement, exclure le tournoi
         if (!gameMatch) return false;
         
-        // Si le jeu correspond, vérifier aussi la recherche de titre (si elle existe)
+        // Si le jeu correspond, vérifier aussi la recherche de titre ET de jeux (si elle existe)
         const titleMatch = !searchLower || tournament.name.toLowerCase().includes(searchLower);
-        return titleMatch;
+        const gamesMatch = !searchLower || tournament.brackets?.some(bracket => 
+          bracket.game.toLowerCase().includes(searchLower)
+        ) || false;
+        
+        return titleMatch || gamesMatch;
       } else {
         // Si pas de filtre de jeu, chercher dans le titre OU dans les noms des jeux (partial match)
         const titleMatch = tournament.name.toLowerCase().includes(searchLower);

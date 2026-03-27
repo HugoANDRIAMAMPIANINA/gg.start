@@ -12,7 +12,7 @@ export default function SearchBar() {
   return (
     <button 
       onClick={handleSearch}
-      className="btn btn-primary btn-lg"
+      className="btn btn-primary btn-lg divider-horizontal mt-6 mx-auto block"
     >
       Chercher un événement
     </button>

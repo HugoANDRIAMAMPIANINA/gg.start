@@ -5,7 +5,8 @@ export default function HomeScreen() {
   return (
     <>
       <main>
-        <h1 className="text-6xl text-center font-bold">gg.start</h1>
+        {/* <h1 className="text-6xl text-center font-bold">gg.start</h1> */}
+        {/* <createTournament/> */}
         <SearchBar />
         {/* <TournamentsList /> */}
       </main>
