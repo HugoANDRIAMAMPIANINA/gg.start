@@ -30,6 +30,7 @@ export class UsersService {
       throw new ConflictException("L'adresse mail est déjà utilisé");
     }
 
+    console.log(createUserDto);
     let user: User = new User();
     user.name = createUserDto.name;
     user.email = createUserDto.email;

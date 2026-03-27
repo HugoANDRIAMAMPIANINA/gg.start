@@ -49,8 +49,20 @@ export class BracketsService {
     }
     const bracket = new Bracket();
 
+    if (createBracketDto.startDate < tournament.startDate) {
+      throw new BadRequestException(
+        'Bracket startDate must be after tournament startDate',
+      );
+    }
+    if (createBracketDto.startDate > tournament.endDate) {
+      throw new BadRequestException(
+        'Bracket startDate must be before tournament endDate',
+      );
+    }
+
     bracket.name = createBracketDto.name;
     bracket.game = createBracketDto.game;
+    bracket.startDate = createBracketDto.startDate;
 
     const bracketType = createBracketDto.bracketType;
     switch (bracketType) {
@@ -73,7 +85,7 @@ export class BracketsService {
   async findOneById(id: string): Promise<Bracket> {
     const bracket = await this.bracketsRepository.findOne({
       where: { id },
-      relations: { players: { user: true } },
+      relations: { players: { user: true }, tournament: true },
       order: { players: { seed: 'ASC' } },
     });
     if (!bracket) {
@@ -84,15 +96,24 @@ export class BracketsService {
 
   async update(id: string, updateBracketDto: UpdateBracketDto): Promise<void> {
     const bracket = await this.findOneById(id);
+    const { name, game, startDate } = updateBracketDto;
 
-    const newName = updateBracketDto.name;
-    if (newName) {
-      bracket.name = newName;
-    }
+    if (name) bracket.name = name;
+    if (game) bracket.game = game;
+    if (startDate) {
+      const tournament = bracket.tournament;
 
-    const newGame = updateBracketDto.game;
-    if (newGame) {
-      bracket.game = newGame;
+      if (startDate < tournament.startDate) {
+        throw new BadRequestException(
+          'Bracket startDate must be after tournament startDate',
+        );
+      }
+      if (startDate > tournament.endDate) {
+        throw new BadRequestException(
+          'Bracket startDate must be before tournament endDate',
+        );
+      }
+      bracket.startDate = startDate;
     }
 
     await this.bracketsRepository.save(bracket);

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateTournamentDto } from './dto/create-tournament.dto';
 import { UpdateTournamentDto } from './dto/update-tournament.dto';
 import { Tournament } from './entities/tournament.entity';
@@ -19,10 +23,16 @@ export class TournamentsService {
   async create(createTournamentDto: CreateTournamentDto, organizerId: string) {
     const organizer: User = await this.userService.findOneById(organizerId);
 
+    if (createTournamentDto.startDate >= createTournamentDto.endDate) {
+      throw new BadRequestException('startDate must be before endDate');
+    }
+
     const tournament: Tournament = new Tournament();
     tournament.name = createTournamentDto.name;
     tournament.description = createTournamentDto.description;
     tournament.organizer = organizer;
+    tournament.startDate = createTournamentDto.startDate;
+    tournament.endDate = createTournamentDto.endDate;
 
     return await this.tournamentsRepository.save(tournament);
   }
@@ -50,15 +60,20 @@ export class TournamentsService {
 
   async update(id: string, updateTournamentDto: UpdateTournamentDto) {
     const tournament: Tournament = await this.findOneById(id);
+    const { name, description, startDate, endDate } = updateTournamentDto;
 
-    const newName = updateTournamentDto.name;
-    if (newName) {
-      tournament.name = newName;
+    if (name) tournament.name = name;
+    if (description) tournament.description = description;
+    if (startDate) tournament.startDate = startDate;
+    if (endDate) tournament.endDate = endDate;
+
+    const finalStartDate = startDate ?? tournament.startDate;
+    const finalEndDate = endDate ?? tournament.endDate;
+
+    if (finalStartDate >= finalEndDate) {
+      throw new BadRequestException('startDate must be before endDate');
     }
-    const newDescription = updateTournamentDto.description;
-    if (newDescription) {
-      tournament.description = newDescription;
-    }
+
     await this.tournamentsRepository.save(tournament);
   }
 
