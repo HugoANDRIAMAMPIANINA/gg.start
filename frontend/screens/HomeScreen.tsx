@@ -1,11 +1,14 @@
-import AccessToken from "@/components/test/AccessToken";
+import SearchBar from "@/components/SearchBar";
 import TournamentsList from "@/components/TournamentsList";
 
 export default function HomeScreen() {
   return (
     <>
-      <main className="p-8">
-        <TournamentsList />
+      <main>
+        {/* <h1 className="text-6xl text-center font-bold">gg.start</h1> */}
+        {/* <createTournament/> */}
+        <SearchBar />
+        {/* <TournamentsList /> */}
       </main>
     </>
   );
