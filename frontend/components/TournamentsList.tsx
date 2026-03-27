@@ -1,15 +1,28 @@
-import { tournaments } from "@/common/data/tournaments";
-import { Tournmanent } from "@/common/interfaces/tournament.interface";
-import Link from "next/link";
+"use client";
 
-export default async function TournamentsList() {
-  const response = await fetch("http://localhost:4321/tournaments");
-  const data: Tournmanent[] = await response.json();
-  // const data: Tournmanent[] = tournaments;
+import { Tournanent } from "@/common/interfaces/tournament.interface";
+import apiClient from "@/lib/apiClient";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+export default function TournamentsList() {
+  const [tournaments, setTournaments] = useState<Tournanent[]>([]);
+
+  useEffect(() => {
+    async function fetchTournaments() {
+      const response = await apiClient.get("/tournaments");
+      const tournaments: Tournanent[] = response.data;
+      if (tournaments) {
+        setTournaments(tournaments);
+      }
+    }
+
+    fetchTournaments();
+  }, []);
 
   return (
     <ul>
-      {data.map((tournament) => (
+      {tournaments.map((tournament) => (
         <li key={tournament.id} className="card shadow-sm w-96">
           <div className="card-body">
             <h2 className="card-title">{tournament.name}</h2>

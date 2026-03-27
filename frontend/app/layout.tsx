@@ -1,35 +1,25 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { roboto, robotoMono } from "@/global/fonts";
 import "./globals.css";
-import Hero from "@/components/Hero";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import UserProvider from "@/common/providers/UserProvider";
 
 export const metadata: Metadata = {
-  title: "gg.start - Competition Through Community",
-  description: "Find and join gaming tournaments in your community",
+  title: "gg.start",
+  description: "Interactive Web App for Tournaments and Brackets management",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // const className = `${roboto.variable} ${robotoMono.variable} min-h-screen antialiased`;
   return (
-    <html lang="en">
+    <html lang="en" className="dracula">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${roboto.variable} ${robotoMono.variable} min-h-screen antialiased`}
       >
-        <Hero />
-        {children}
+        <UserProvider initialUser={null}>{children}</UserProvider>
       </body>
     </html>
   );

@@ -30,19 +30,20 @@ export class AuthGuard implements CanActivate {
     const request: Request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('AccessToken not found');
     }
+
     try {
       const payload: JwtPayload = await this.jwtService.verifyAsync(token);
       request['user'] = payload;
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('AccessToken expired');
     }
     return true;
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+    const cookies: Record<string, string> = request.cookies;
+    return cookies['accessToken'];
   }
 }
