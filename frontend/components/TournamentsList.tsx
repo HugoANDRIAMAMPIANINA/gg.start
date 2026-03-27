@@ -1,7 +1,7 @@
 "use client";
 
 import { Tournanent } from "@/common/interfaces/tournament.interface";
-import { apiClient } from "@/lib/axios";
+import apiClient from "@/lib/apiClient";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 

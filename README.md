@@ -15,6 +15,8 @@ gg.start est une plateforme web permettant à n'importe quel utilisateur d'organ
 
 A la racine du répertoire du projet gg.start, créer un fichier **.env** avec le contenu suivant
 ```.env
+NODE_ENV=development
+
 API_PORT=<inserer_ici>
 API_URL=http://localhost:$API_PORT
 
@@ -24,11 +26,17 @@ POSTGRES_DB=<inserer_ici>
 POSTGRES_HOST=<inserer_ici>
 POSTGRES_PORT=<inserer_ici>
 
-JWT_SECRET=<inserer_ici>
+JWT_ACCESS_TOKEN_SECRET=<inserer_ici>
+JWT_ACCESS_TOKEN_EXPIRATION=900000 # 15 minutes
+TOKEN_COOKIES_EXPIRATION=604800000 # 1 semaine
 ```
 Remplacez les **<inserer_ici>** par vos propres variables de configuration
 
 **JWT_SECRET** est un secret utilisé pour signer les **access_token** JWT, libre à vous de le générer comme vous le souhaiter (ex: une chaîne de caractère en SHA256)
+Sur Linux, vous pouvez générer votre token avce la commande suivante :
+```bash
+echo -n <une_chaine_de_caracteres_quelconque> | sha256sum
+```
 
 `ATTENTION : Le port de la base de données PostgreSQL, le port de l'API et le port du Frontend doivent être différents`
 

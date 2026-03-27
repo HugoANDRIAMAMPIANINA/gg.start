@@ -2,12 +2,16 @@
 
 import { RegisterFormSchema } from "@/common/schemas/register.schema";
 import { FormState } from "@/common/states/register-form.state";
-import { apiClient } from "../axios";
+import apiClient from "../apiClient";
 import { LoginFormSchema } from "@/common/schemas/login.schema";
 import { redirect } from "next/navigation";
-import { createSession, deleteSession, getSession } from "./session";
-import { AxiosError } from "axios";
 import { SessionUser } from "@/common/interfaces/session-user.interface";
+import {
+  deleteSessionTokens,
+  getAuthTokenHeaders,
+  setSessionTokens,
+} from "../session";
+import axios from "axios";
 
 export async function register(state: FormState, formData: FormData) {
   // Validate form fields
@@ -60,31 +64,58 @@ export async function login(formData: FormData) {
       email,
       password,
     });
+    const setCookieHeader = response.headers["set-cookie"];
 
-    const accessToken: string = response.data.access_token;
-    console.log(accessToken);
-    await createSession(accessToken);
+    if (!setCookieHeader) {
+      return {
+        errors: {
+          message:
+            "Une erreur est survenue lors de la génération de la session",
+        },
+      };
+    }
+
+    await setSessionTokens(setCookieHeader);
   } catch (error: any) {
     return { errors: { message: "Adresse Mail ou mot de passe invalide" } };
   }
 }
 
 export async function logout() {
-  await deleteSession();
+  const headers = await getAuthTokenHeaders();
+  await apiClient.get("/auth/logout", { headers: headers });
+  await deleteSessionTokens();
   redirect("/auth/login/");
 }
 
-export async function getCurrentUser() {
-  const accessToken = await getSession();
-  if (!accessToken) return null;
+export async function getCurrentUser(): Promise<SessionUser | null> {
+  try {
+    const headers = await getAuthTokenHeaders();
+    const response = await apiClient.get("/auth/me", { headers });
+    return response.data ?? null;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      // Token expired — try refresh
+      try {
+        const refreshHeaders = await getAuthTokenHeaders();
+        const refreshResponse = await apiClient.get("/auth/refresh", {
+          headers: refreshHeaders,
+        });
 
-  const response = await apiClient.get("/auth/me", {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+        const setCookieHeader = refreshResponse.headers["set-cookie"];
+        if (setCookieHeader) {
+          await setSessionTokens(setCookieHeader);
+        }
 
-  const currentUser: SessionUser = response.data;
-  if (currentUser) {
-    return currentUser;
+        const newHeaders = await getAuthTokenHeaders();
+        const retryResponse = await apiClient.get("/auth/me", {
+          headers: newHeaders,
+        });
+        return retryResponse.data ?? null;
+      } catch {
+        return null; // refresh failed → truly logged out
+      }
+    }
+    return null;
   }
-  return null;
 }
