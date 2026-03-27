@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
@@ -13,7 +17,19 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
+  async userExists(email: string) {
+    const user = await this.usersRepository.findOne({
+      where: { email: email },
+    });
+    return user ? true : false;
+  }
+
   async create(createUserDto: CreateUserDto) {
+    const userExists = await this.userExists(createUserDto.email);
+    if (userExists) {
+      throw new ConflictException("L'adresse mail est déjà utilisé");
+    }
+
     let user: User = new User();
     user.name = createUserDto.name;
     user.email = createUserDto.email;
@@ -23,9 +39,7 @@ export class UsersService {
     user.passwordHash = hash;
 
     user = await this.usersRepository.save(user);
-
-    const { passwordHash, ...result } = user; // Retire le hash du mot de passe de l'objet pour ne pas l'envoyer dans la requête
-
+    const { passwordHash, refreshToken, ...result } = user; // Retire le hash du mot de passe de l'objet pour ne pas l'envoyer dans la requête
     return result;
   }
 
@@ -57,6 +71,7 @@ export class UsersService {
         name: true,
         email: true,
         passwordHash: true,
+        refreshToken: true,
       },
     });
     if (!user) {
@@ -83,6 +98,16 @@ export class UsersService {
     return user;
   }
 
+  async findOneByRefreshToken(refreshToken: string): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { refreshToken: refreshToken },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.findOneById(id);
     const newName = updateUserDto.name;
@@ -93,6 +118,11 @@ export class UsersService {
     if (newEmail) {
       user.email = newEmail;
     }
+    await this.usersRepository.save(user);
+  }
+
+  async updateUserRefreshToken(user: User, refreshToken: string | null) {
+    user.refreshToken = refreshToken;
     await this.usersRepository.save(user);
   }
 

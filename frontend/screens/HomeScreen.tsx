@@ -1,10 +1,10 @@
+import AccessToken from "@/components/test/AccessToken";
 import TournamentsList from "@/components/TournamentsList";
 
 export default function HomeScreen() {
   return (
     <>
-      <main>
-        <h1 className="text-6xl text-center font-bold">gg.start</h1>
+      <main className="p-8">
         <TournamentsList />
       </main>
     </>

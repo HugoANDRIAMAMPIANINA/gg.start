@@ -13,7 +13,7 @@ export class User {
   name: string;
 
   @IsEmail()
-  @Column()
+  @Column({ type: 'text', unique: true })
   email: string;
 
   @Column({ select: false })
@@ -24,4 +24,7 @@ export class User {
 
   @OneToMany(() => BracketPlayer, (bracketPlayer) => bracketPlayer.user)
   brackets: BracketPlayer[];
+
+  @Column({ type: 'text', nullable: true })
+  refreshToken!: string | null;
 }
