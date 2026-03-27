@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation";
 export default function SearchButton() {
   const router = useRouter();
 
-  const redirectToSearch = () => {
-    router.push("/search");
+  const redirectToTournamentsSearch = () => {
+    router.push("/tournaments");
   };
 
   return (
     <button
-      onClick={redirectToSearch}
+      onClick={redirectToTournamentsSearch}
       className="btn btn-primary btn-lg divider-horizontal mt-6 mx-auto block"
     >
       Chercher un événement
