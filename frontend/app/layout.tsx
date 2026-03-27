@@ -13,7 +13,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // const className = `${roboto.variable} ${robotoMono.variable} min-h-screen antialiased`;
   return (
     <html lang="en" className="dracula">
       <body

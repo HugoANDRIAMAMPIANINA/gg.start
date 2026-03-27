@@ -1,6 +1,6 @@
-import { Bracket } from './bracket.interface';
+import { Bracket } from "./bracket.interface";
 
-export interface Tournanent {
+export interface Tournament {
   id: string;
   name: string;
   description: string;

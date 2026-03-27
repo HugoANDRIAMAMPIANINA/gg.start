@@ -1,4 +1,4 @@
-import { Tournanent } from "@/common/interfaces/tournament.interface";
+import { Tournament } from "@/common/interfaces/tournament.interface";
 
 export default async function TournamentPage({
   params,
@@ -9,7 +9,7 @@ export default async function TournamentPage({
   const response = await fetch(
     `http://localhost:4321/tournaments/${tournamentId}`,
   );
-  const data: Tournanent = await response.json();
+  const data: Tournament = await response.json();
 
   return (
     <main>

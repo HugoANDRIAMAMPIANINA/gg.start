@@ -1,5 +1,5 @@
-import SearchBar from "@/components/SearchBar";
-import TournamentsList from "@/components/TournamentsList";
+import Hero from "@/components/Hero";
+import SearchButton from "@/components/SearchButton";
 
 export default function HomeScreen() {
   return (
@@ -7,7 +7,8 @@ export default function HomeScreen() {
       <main>
         {/* <h1 className="text-6xl text-center font-bold">gg.start</h1> */}
         {/* <createTournament/> */}
-        <SearchBar />
+        <Hero />
+        <SearchButton />
         {/* <TournamentsList /> */}
       </main>
     </>

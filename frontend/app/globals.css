@@ -1,4 +1,9 @@
 @import "tailwindcss";
+
+@layer components {
+    /* Ici pour faire des classes custom CSS en suivant les conventions TailwindCSS */
+}
+
 @plugin "daisyui" {
     themes:
         light --default,

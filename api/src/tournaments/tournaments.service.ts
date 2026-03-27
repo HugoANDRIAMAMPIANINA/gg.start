@@ -28,7 +28,9 @@ export class TournamentsService {
   }
 
   async findAll() {
-    return await this.tournamentsRepository.find({ relations: { brackets: true } });
+    return await this.tournamentsRepository.find({
+      relations: { brackets: true },
+    });
   }
 
   async findOneById(id: string) {

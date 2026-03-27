@@ -1,17 +1,20 @@
-'use client';
+"use client";
 
-import { Tournmanent } from "@/common/interfaces/tournament.interface";
+import { Tournament } from "@/common/interfaces/tournament.interface";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { fightingGames } from "@/common/data/games";
+import apiClient from "@/lib/apiClient";
 
 export default function ResearchPage() {
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
-  const [gameFilter, setGameFilter] = useState('');
-  
-  const [tournaments, setTournaments] = useState<Tournmanent[]>([]);
-  const [filteredTournaments, setFilteredTournaments] = useState<Tournmanent[]>([]);
+  const [gameFilter, setGameFilter] = useState("");
+
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
+  const [filteredTournaments, setFilteredTournaments] = useState<Tournament[]>(
+    [],
+  );
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
 
@@ -19,11 +22,11 @@ export default function ResearchPage() {
   useEffect(() => {
     const fetchTournaments = async () => {
       try {
-        const response = await fetch('http://localhost:4321/tournaments');
-        const data: Tournmanent[] = await response.json();
+        const response = await apiClient.get("/tournaments");
+        const data: Tournament[] = response.data;
         setTournaments(data);
       } catch (error) {
-        console.error('Erreur lors de la récupération des tournois:', error);
+        console.error("Erreur lors de la récupération des tournois:", error);
       } finally {
         setLoading(false);
       }
@@ -34,31 +37,38 @@ export default function ResearchPage() {
   // Fonction pour filtrer les tournois
   const performSearch = (searchTerm: string, gameSelected: string | null) => {
     const searchLower = searchTerm.toLowerCase();
-    
-    const filtered = tournaments.filter(tournament => {
+
+    const filtered = tournaments.filter((tournament) => {
       // Si un filtre de jeu est spécifié, il est prioritaire et doit correspondre exactement
       if (gameSelected) {
-        const gameMatch = tournament.brackets?.some(bracket => 
-          bracket.game.toLowerCase() === gameSelected.toLowerCase()
-        ) || false;
-        
+        const gameMatch =
+          tournament.brackets?.some(
+            (bracket) =>
+              bracket.game.toLowerCase() === gameSelected.toLowerCase(),
+          ) || false;
+
         // Si le jeu ne correspond pas exactement, exclure le tournoi
         if (!gameMatch) return false;
-        
+
         // Si le jeu correspond, vérifier aussi la recherche de titre ET de jeux (si elle existe)
-        const titleMatch = !searchLower || tournament.name.toLowerCase().includes(searchLower);
-        const gamesMatch = !searchLower || tournament.brackets?.some(bracket => 
-          bracket.game.toLowerCase().includes(searchLower)
-        ) || false;
-        
+        const titleMatch =
+          !searchLower || tournament.name.toLowerCase().includes(searchLower);
+        const gamesMatch =
+          !searchLower ||
+          tournament.brackets?.some((bracket) =>
+            bracket.game.toLowerCase().includes(searchLower),
+          ) ||
+          false;
+
         return titleMatch || gamesMatch;
       } else {
         // Si pas de filtre de jeu, chercher dans le titre OU dans les noms des jeux (partial match)
         const titleMatch = tournament.name.toLowerCase().includes(searchLower);
-        const gamesMatch = tournament.brackets?.some(bracket => 
-          bracket.game.toLowerCase().includes(searchLower)
-        ) || false;
-        
+        const gamesMatch =
+          tournament.brackets?.some((bracket) =>
+            bracket.game.toLowerCase().includes(searchLower),
+          ) || false;
+
         return titleMatch || gamesMatch;
       }
     });
@@ -78,7 +88,7 @@ export default function ResearchPage() {
   }, [search, tournaments]);
 
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       setSearching(true);
       performSearch(search, selectedGame);
     }
@@ -89,8 +99,8 @@ export default function ResearchPage() {
     performSearch(search, selectedGame);
   }, [selectedGame, tournaments]);
 
-  const filteredGames = fightingGames.filter(game => 
-    game.toLowerCase().includes(gameFilter.toLowerCase())
+  const filteredGames = fightingGames.filter((game) =>
+    game.toLowerCase().includes(gameFilter.toLowerCase()),
   );
 
   if (loading) {
@@ -100,12 +110,12 @@ export default function ResearchPage() {
   return (
     <main className="p-6 max-w-4xl mx-auto">
       <h1 className="text-4xl font-bold mb-6">Chercher un événement</h1>
-      
+
       {/* Barre de recherche */}
       <div className="mb-6">
-        <input 
-          type="text" 
-          placeholder="Rechercher par nom de tournoi ou jeu..." 
+        <input
+          type="text"
+          placeholder="Rechercher par nom de tournoi ou jeu..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={handleSearchKeyDown}
@@ -117,15 +127,15 @@ export default function ResearchPage() {
       <div className="mb-6">
         <details className="collapse bg-base-200">
           <summary className="collapse-title font-semibold">
-            Filtrer par jeu {selectedGame ? `(${selectedGame})` : '(Aucun)'}
+            Filtrer par jeu {selectedGame ? `(${selectedGame})` : "(Aucun)"}
           </summary>
           <div className="collapse-content">
-            <input 
-              type="text" 
-              placeholder="Rechercher un jeu..." 
-              value={gameFilter} 
-              onChange={(e) => setGameFilter(e.target.value)} 
-              className="input input-sm input-bordered w-full mb-3" 
+            <input
+              type="text"
+              placeholder="Rechercher un jeu..."
+              value={gameFilter}
+              onChange={(e) => setGameFilter(e.target.value)}
+              className="input input-sm input-bordered w-full mb-3"
             />
             <div className="max-h-48 overflow-y-auto space-y-2">
               {filteredGames.map((game) => (
@@ -134,7 +144,9 @@ export default function ResearchPage() {
                     type="checkbox"
                     id={game}
                     checked={selectedGame === game}
-                    onChange={() => setSelectedGame(selectedGame === game ? null : game)}
+                    onChange={() =>
+                      setSelectedGame(selectedGame === game ? null : game)
+                    }
                     className="checkbox"
                   />
                   <label htmlFor={game} className="label cursor-pointer ml-2">
@@ -149,10 +161,20 @@ export default function ResearchPage() {
 
       {/* Affichage des critères actifs */}
       <div className="mb-6 text-sm text-gray-600">
-        {search && <span>Recherche: <strong>{search}</strong></span>}
+        {search && (
+          <span>
+            Recherche: <strong>{search}</strong>
+          </span>
+        )}
         {search && selectedGame && <span> | </span>}
-        {selectedGame && <span>Jeu: <strong>{selectedGame}</strong></span>}
-        {searching && <span className="ml-2 loading loading-spinner loading-sm"></span>}
+        {selectedGame && (
+          <span>
+            Jeu: <strong>{selectedGame}</strong>
+          </span>
+        )}
+        {searching && (
+          <span className="ml-2 loading loading-spinner loading-sm"></span>
+        )}
       </div>
 
       {/* Résultats */}
@@ -160,7 +182,7 @@ export default function ResearchPage() {
         <p className="text-lg text-gray-500">Aucun tournoi trouvé</p>
       ) : (
         <div className="grid gap-4">
-          {filteredTournaments.map(tournament => (
+          {filteredTournaments.map((tournament) => (
             <div key={tournament.id} className="card bg-base-100 shadow-md p-4">
               <h2 className="text-2xl font-semibold">{tournament.name}</h2>
               <p className="text-gray-600">{tournament.description}</p>
@@ -168,7 +190,7 @@ export default function ResearchPage() {
                 <div className="mt-3">
                   <p className="text-sm font-semibold">Jeux:</p>
                   <div className="flex flex-wrap gap-2 mt-1">
-                    {tournament.brackets.map(bracket => (
+                    {tournament.brackets.map((bracket) => (
                       <span key={bracket.id} className="badge badge-primary">
                         {bracket.game}
                       </span>
@@ -176,7 +198,10 @@ export default function ResearchPage() {
                   </div>
                 </div>
               )}
-              <Link href={`/tournaments/${tournament.id}`} className="btn btn-sm btn-primary mt-3">
+              <Link
+                href={`/tournaments/${tournament.id}`}
+                className="btn btn-sm btn-primary mt-3"
+              >
                 Voir détails
               </Link>
             </div>

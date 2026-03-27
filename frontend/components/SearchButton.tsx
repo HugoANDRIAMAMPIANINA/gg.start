@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
 import { useRouter } from "next/navigation";
 
-export default function SearchBar() {
+export default function SearchButton() {
   const router = useRouter();
 
-  const handleSearch = () => {
-    router.push('/tournaments/research');
+  const redirectToSearch = () => {
+    router.push("/search");
   };
 
   return (
-    <button 
-      onClick={handleSearch}
+    <button
+      onClick={redirectToSearch}
       className="btn btn-primary btn-lg divider-horizontal mt-6 mx-auto block"
     >
       Chercher un événement

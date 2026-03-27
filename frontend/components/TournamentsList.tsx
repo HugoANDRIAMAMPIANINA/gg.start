@@ -1,17 +1,17 @@
 "use client";
 
-import { Tournanent } from "@/common/interfaces/tournament.interface";
+import { Tournament } from "@/common/interfaces/tournament.interface";
 import apiClient from "@/lib/apiClient";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function TournamentsList() {
-  const [tournaments, setTournaments] = useState<Tournanent[]>([]);
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
 
   useEffect(() => {
     async function fetchTournaments() {
       const response = await apiClient.get("/tournaments");
-      const tournaments: Tournanent[] = response.data;
+      const tournaments: Tournament[] = response.data;
       if (tournaments) {
         setTournaments(tournaments);
       }
