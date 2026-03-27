@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { roboto, robotoMono } from "@/global/fonts";
 import "./globals.css";
 import UserProvider from "@/common/providers/UserProvider";
-import { SessionUser } from "@/common/interfaces/session-user.interface";
-import { getCurrentUser } from "@/lib/actions/auth";
 
 export const metadata: Metadata = {
   title: "gg.start",
@@ -15,13 +13,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const className = `${roboto.variable} ${robotoMono.variable} antialiased`;
-  const user: SessionUser | null = await getCurrentUser();
-
+  // const className = `${roboto.variable} ${robotoMono.variable} min-h-screen antialiased`;
   return (
-    <html lang="en">
-      <body className={className}>
-        <UserProvider initialUser={user}>{children}</UserProvider>
+    <html lang="en" className="dracula">
+      <body
+        className={`${roboto.variable} ${robotoMono.variable} min-h-screen antialiased`}
+      >
+        <UserProvider initialUser={null}>{children}</UserProvider>
       </body>
     </html>
   );

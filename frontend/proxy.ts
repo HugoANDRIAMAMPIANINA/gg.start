@@ -9,7 +9,7 @@ export default async function proxy(request: NextRequest) {
   const isProtectedRoute = protectedRoutes.includes(path);
   const isAuthRoute = authRoutes.includes(path);
 
-  const sessionExists = request.cookies.has("session");
+  const sessionExists = request.cookies.has("accessToken");
 
   // Redirect to /auth/login (the login route) if the user is not authenticated
   if (isProtectedRoute && !sessionExists) {

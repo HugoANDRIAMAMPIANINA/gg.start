@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-    /*logs: false; uncomment to remove logs sent by daisyui*/
+    themes:
+        light --default,
+        dracula --prefersdark;
 }
 
 /*:root {
