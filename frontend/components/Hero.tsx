@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import HeroButton from "./HeroButton";
 
 export default function Hero() {
   return (
@@ -14,6 +15,11 @@ export default function Hero() {
             gg.start
           </Link>
           <p className="py-6 text-xl">competition through community</p>
+
+          <div className="py-4 flex flex-row items-center justify-center gap-4">
+            <HeroButton text="Chercher un tournoi" href="/tournaments" />
+            <HeroButton text="Créer un tournoi" href="/tournaments/new" />
+          </div>
         </div>
       </div>
     </div>

@@ -1,19 +1,19 @@
 "use client";
 
 import { UserContext } from "@/common/contexts/UserContext";
-import { getCurrentUser, login } from "@/lib/actions/auth";
+import { getCurrentUser, login, LoginFormErrors } from "@/lib/actions/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useActionState, useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 
 export default function LoginForm() {
   const router = useRouter();
-  // const [state, action, pending] = useActionState(login, undefined);
+
   const { setCurrentUser } = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [errors, setErrors] = useState(null);
+  const [errors, setErrors] = useState<LoginFormErrors | undefined>();
   const [pending, setPending] = useState(false);
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
@@ -23,8 +23,8 @@ export default function LoginForm() {
     const formData = new FormData(e.currentTarget);
     const result = await login(formData);
 
-    if (result?.errors || result?.error) {
-      setErrors(result.errors ?? result.error);
+    if (result) {
+      setErrors(result.errors);
       setPending(false);
       return;
     }

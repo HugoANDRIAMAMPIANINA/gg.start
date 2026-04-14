@@ -6,7 +6,7 @@ import Link from "next/link";
 import { fightingGames } from "@/common/data/games";
 import apiClient from "@/lib/apiClient";
 
-export default function ResearchPage() {
+export default function TournamentsPage() {
   const [search, setSearch] = useState("");
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [gameFilter, setGameFilter] = useState("");

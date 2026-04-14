@@ -13,7 +13,31 @@ import {
 } from "../session";
 import axios from "axios";
 
-export async function register(state: FormState, formData: FormData) {
+interface RegisterFormResult {
+  errors: RegisterFormErrors;
+}
+
+export interface RegisterFormErrors {
+  name?: string[] | undefined;
+  email?: string[] | undefined;
+  password?: string[] | undefined;
+  message?: string | undefined;
+}
+
+interface LoginFormResult {
+  errors: LoginFormErrors;
+}
+
+export interface LoginFormErrors {
+  email?: string[] | undefined;
+  password?: string[] | undefined;
+  message?: string | undefined;
+}
+
+export async function register(
+  state: FormState,
+  formData: FormData,
+): Promise<RegisterFormResult> {
   // Validate form fields
   const validatedFields = RegisterFormSchema.safeParse({
     name: formData.get("name"),
@@ -37,13 +61,15 @@ export async function register(state: FormState, formData: FormData) {
       password,
     });
   } catch (error: any) {
-    return { error: { message: error.message } };
+    return { errors: { message: error.message } };
   }
 
   redirect("/auth/login/");
 }
 
-export async function login(formData: FormData) {
+export async function login(
+  formData: FormData,
+): Promise<LoginFormResult | undefined> {
   // Validate form fields
   const validatedFields = LoginFormSchema.safeParse({
     email: formData.get("email"),

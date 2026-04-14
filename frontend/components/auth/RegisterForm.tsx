@@ -30,7 +30,7 @@ export default function RegisterForm() {
               onChange={(e) => setName(e.target.value)}
             />
           </div>
-          {state?.errors?.name && (
+          {state?.errors.name && (
             <p className="text-error">{state.errors.name}</p>
           )}
 
@@ -48,7 +48,7 @@ export default function RegisterForm() {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          {state?.errors?.email && (
+          {state?.errors.email && (
             <p className="text-error">{state.errors.email}</p>
           )}
 
@@ -66,7 +66,7 @@ export default function RegisterForm() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          {state?.errors?.password && (
+          {state?.errors.password && (
             <div>
               <p>Password must:</p>
               <ul>
@@ -78,8 +78,8 @@ export default function RegisterForm() {
               </ul>
             </div>
           )}
-          {state?.error?.message && (
-            <p className="text-error">{state.error.message}</p>
+          {state?.errors.message && (
+            <p className="text-error">{state.errors.message}</p>
           )}
         </div>
 
