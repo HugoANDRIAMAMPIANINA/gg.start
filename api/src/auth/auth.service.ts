@@ -41,6 +41,10 @@ export class AuthService {
     this.clearSessionCookies(response);
   }
 
+  async getMe(request: Request): Promise<User> {
+    return await this.usersService.findOneById(request['user']['sub']);
+  }
+
   async refresh(request: Request, response: Response) {
     const accessToken: JwtPayload = this.jwtService.decode(
       request['accessToken'],

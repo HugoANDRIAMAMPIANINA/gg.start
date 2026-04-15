@@ -1,19 +1,5 @@
-import { Tournament } from "@/common/interfaces/tournament.interface";
+import TournamentScreen from "@/screens/tournaments/TournamentScreen";
 
-export default async function TournamentPage({
-  params,
-}: {
-  params: Promise<{ tournamentId: string }>;
-}) {
-  const { tournamentId } = await params;
-  const response = await fetch(
-    `http://localhost:4321/tournaments/${tournamentId}`,
-  );
-  const data: Tournament = await response.json();
-
-  return (
-    <main>
-      {data.name} {data.description}
-    </main>
-  );
+export default function TournamentPage() {
+  return <TournamentScreen />;
 }
