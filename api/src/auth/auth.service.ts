@@ -8,6 +8,7 @@ import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { User } from 'src/users/entities/user.entity';
 import { Session } from './entities/session.interface';
+import { UpdateUserDto } from 'src/users/dto/update-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -41,6 +42,17 @@ export class AuthService {
     this.clearSessionCookies(response);
   }
 
+  async updateProfile(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    response: Response,
+  ) {
+    const updatedUser = await this.usersService.update(id, updateUserDto);
+    const userEntity = await this.usersService.findOneById(id);
+    const accessToken = await this.generateAccessToken(userEntity);
+    this.setAccessTokenCookie(response, accessToken);
+    return updatedUser;
+  
   async getMe(request: Request): Promise<User> {
     return await this.usersService.findOneById(request['user']['sub']);
   }
@@ -95,6 +107,28 @@ export class AuthService {
     };
 
     return session;
+  }
+
+  private async generateAccessToken(user: User): Promise<string> {
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      username: user.name,
+      organizedTournaments: user.organizedTournaments,
+    };
+
+    return this.jwtService.signAsync(payload);
+  }
+
+  private setAccessTokenCookie(response: Response, accessToken: string) {
+    const secure = this.configService.get('NODE_ENV') === 'production';
+    response.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: secure,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: this.configService.get<number>('TOKEN_COOKIES_EXPIRATION'),
+    });
   }
 
   private setSessionCookies(response: Response, session: Session) {

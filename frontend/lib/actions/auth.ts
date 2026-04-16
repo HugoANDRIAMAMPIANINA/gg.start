@@ -116,6 +116,20 @@ export async function logout() {
   redirect("/auth/login/");
 }
 
+export interface UpdateProfileResult {
+  errors?: {
+    name?: string[];
+    email?: string[];
+    password?: string[];
+    message?: string;
+  };
+  message?: string;
+  user?: {
+    name?: string;
+    email?: string;
+  };
+}
+
 export async function getCurrentUser(): Promise<SessionUser | null> {
   try {
     const response = await fetchWithAuth(
@@ -128,5 +142,88 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     return response.data ?? null;
   } catch {
     return null;
+  }
+}
+
+export async function updateProfile(
+  formData: FormData,
+): Promise<UpdateProfileResult> {
+  const name = formData.get("name")?.toString().trim() || undefined;
+  const email = formData.get("email")?.toString().trim() || undefined;
+  const passwordRaw = formData.get("password")?.toString();
+  const confirmPasswordRaw = formData.get("confirmPassword")?.toString();
+
+  const password = passwordRaw?.trim() || undefined;
+  const confirmPassword = confirmPasswordRaw?.trim() || undefined;
+
+  const errors: UpdateProfileResult["errors"] = {};
+
+  if (name !== undefined && name.length > 0 && name.length < 2) {
+    errors.name = ["Le nom doit contenir au moins 2 caractères."];
+  }
+
+  if (email !== undefined && email.length > 0) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      errors.email = ["Adresse e-mail invalide."];
+    }
+  }
+
+  const shouldUpdatePassword = Boolean(password);
+
+  if (shouldUpdatePassword) {
+    if (password && password.length < 6) {
+      errors.password = [
+        "Le mot de passe doit contenir au moins 6 caractères.",
+      ];
+    }
+    if (password !== confirmPassword) {
+      errors.password = ["Les mots de passe ne correspondent pas."];
+    }
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return { errors };
+  }
+
+  const updateData: Record<string, string> = {};
+  if (name !== undefined) updateData.name = name;
+  if (email !== undefined) updateData.email = email;
+  if (shouldUpdatePassword && password) updateData.password = password;
+
+  if (Object.keys(updateData).length === 0) {
+    return { message: "Aucune modification détectée." };
+  }
+
+  try {
+    const headers = await getAuthTokenHeaders();
+    const response = await apiClient.patch("/auth/me", updateData, {
+      headers,
+    });
+
+    const setCookieHeader = response.headers["set-cookie"];
+    if (setCookieHeader) {
+      await setSessionTokens(
+        Array.isArray(setCookieHeader) ? setCookieHeader : [setCookieHeader],
+      );
+    }
+
+    return {
+      message: "Profil mis à jour.",
+      user: {
+        name: response.data.name,
+        email: response.data.email,
+      },
+    };
+  } catch (error: any) {
+    const axiosError = axios.isAxiosError(error) ? error : null;
+    return {
+      errors: {
+        message:
+          axiosError?.response?.data?.message ||
+          axiosError?.message ||
+          "Impossible de mettre à jour le profil.",
+      },
+    };
   }
 }
