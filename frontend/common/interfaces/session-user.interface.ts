@@ -1,7 +1,8 @@
+import { Tournament } from "./tournament.interface";
+
 export interface SessionUser {
-  sub: string;
+  id: string;
   email: string;
-  username: string;
-  iat: number;
-  exp: number;
+  name: string;
+  organizedTournaments: Tournament[];
 }

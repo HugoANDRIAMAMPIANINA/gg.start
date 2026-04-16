@@ -20,8 +20,8 @@ export default function Navbar() {
       <div className="flex gap-4 items-center">
         {currentUser ? (
           <div className="flex gap-4 items-center">
-            <span>Bienvenue, {currentUser.username}</span>
-            <UserDropdown username={currentUser.username} />
+            <span>Bienvenue, {currentUser.name}</span>
+            <UserDropdown username={currentUser.name} />
           </div>
         ) : isLoading ? (
           <UserAvatarMenuTriggerSkeleton />

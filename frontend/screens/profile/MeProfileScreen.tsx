@@ -15,7 +15,7 @@ export default function MeProfileScreen() {
     <main>
       <UserAvatar />
       {currentUser ? (
-        <h2>{currentUser.username}</h2>
+        <h2>{currentUser.name}</h2>
       ) : (
         <h2 className="skeleton skeleton-text">Nom d'utilisateur</h2>
       )}
