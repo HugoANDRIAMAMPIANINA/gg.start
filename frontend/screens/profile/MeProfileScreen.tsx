@@ -9,10 +9,10 @@ import UserAvatar from "@/components/user/UserAvatar";
 export default function MeProfileScreen() {
   const router = useRouter();
   const { currentUser, setCurrentUser, isLoading } = useContext(UserContext);
-  const [state, action, pending] = useActionState<UpdateProfileResult | undefined, FormData>(
-    (_state, formData) => updateProfile(formData),
-    undefined,
-  );
+  const [state, action, pending] = useActionState<
+    UpdateProfileResult | undefined,
+    FormData
+  >((_state, formData) => updateProfile(formData), undefined);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,7 +21,9 @@ export default function MeProfileScreen() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isPasswordEditEnabled, setIsPasswordEditEnabled] = useState(false);
 
-  const hasPasswordAttempt = Boolean(isPasswordEditEnabled && (password || confirmPassword));
+  const hasPasswordAttempt = Boolean(
+    isPasswordEditEnabled && (password || confirmPassword),
+  );
 
   useEffect(() => {
     if (!isLoading && !currentUser) {
@@ -100,7 +102,9 @@ export default function MeProfileScreen() {
             <div>
               <p className="text-sm text-muted-foreground">Profil</p>
               <h2 className="text-3xl font-semibold">{currentUser.username}</h2>
-              <p className="text-sm text-muted-foreground">{currentUser.email}</p>
+              <p className="text-sm text-muted-foreground">
+                {currentUser.email}
+              </p>
             </div>
           </div>
 
@@ -119,8 +123,12 @@ export default function MeProfileScreen() {
           <div className="w-full max-w-2xl overflow-hidden rounded-3xl border border-base-200 bg-base-100 shadow-2xl">
             <div className="flex items-center justify-between border-b border-base-200 px-6 py-4">
               <div>
-                <p className="text-sm text-muted-foreground">Modifier le profil</p>
-                <h4 className="text-xl font-semibold">Informations personnelles</h4>
+                <p className="text-sm text-muted-foreground">
+                  Modifier le profil
+                </p>
+                <h4 className="text-xl font-semibold">
+                  Informations personnelles
+                </h4>
               </div>
               <button
                 type="button"

@@ -52,7 +52,8 @@ export class AuthService {
     const accessToken = await this.generateAccessToken(userEntity);
     this.setAccessTokenCookie(response, accessToken);
     return updatedUser;
-  
+  }
+
   async getMe(request: Request): Promise<User> {
     return await this.usersService.findOneById(request['user']['sub']);
   }
@@ -62,7 +63,9 @@ export class AuthService {
       request['accessToken'],
     );
 
-    const user = await this.usersService.findOneById(accessToken.sub);
+    const user = await this.usersService.findOneByIdWithRefreshToken(
+      accessToken.sub,
+    );
 
     const storedRefreshToken = user.refreshToken;
     if (!storedRefreshToken) {

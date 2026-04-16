@@ -35,6 +35,7 @@ export async function fetchWithAuth(
       if (setCookieHeader) {
         await setSessionTokens(setCookieHeader);
       }
+      console.log(setCookieHeader);
 
       // Retry original request with fresh cookies
       const newHeaders = await getAuthTokenHeaders();
@@ -42,7 +43,8 @@ export async function fetchWithAuth(
         ...config,
         headers: { ...config.headers, ...newHeaders },
       });
-    } catch {
+    } catch (error) {
+      console.log(error);
       if (options.redirectOnAuthFailure) {
         redirect("/auth/login");
       }

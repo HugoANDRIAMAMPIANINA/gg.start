@@ -132,6 +132,7 @@ export interface UpdateProfileResult {
 
 export async function getCurrentUser(): Promise<SessionUser | null> {
   try {
+    console.log("test refresh");
     const response = await fetchWithAuth(
       {
         method: "GET",
@@ -139,8 +140,10 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
       },
       { redirectOnAuthFailure: false },
     );
+    console.log(response);
     return response.data ?? null;
-  } catch {
+  } catch (error) {
+    console.log(error);
     return null;
   }
 }

@@ -108,6 +108,20 @@ export class UsersService {
     return user;
   }
 
+  async findOneByIdWithRefreshToken(id: string): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { id: id },
+      select: {
+        id: true,
+        refreshToken: true,
+      },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
   async findOneByRefreshToken(refreshToken: string): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { refreshToken: refreshToken },
