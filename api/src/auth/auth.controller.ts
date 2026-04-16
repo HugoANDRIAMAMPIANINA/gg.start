@@ -1,6 +1,7 @@
 import {
   Controller,
   Post,
+  Patch,
   Body,
   Get,
   HttpCode,
@@ -20,6 +21,7 @@ import { LoginDto } from './dto/login.dto';
 import { Public } from 'src/auth/decorators/public.decorator';
 import type { Request, Response } from 'express';
 import { RefreshGuard } from './refresh.guard';
+import { UpdateUserDto } from 'src/users/dto/update-user.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -90,6 +92,37 @@ export class AuthController {
   })
   getProfile(@Req() request) {
     return request.user;
+  }
+
+  @Patch('me')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Update authenticated user profile',
+    description: 'Updates the profile of the currently authenticated user.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Authenticated user profile updated',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid profile data',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'JWT token missing or invalid',
+  })
+  updateProfile(
+    @Req() request,
+    @Body() updateUserDto: UpdateUserDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    return this.authService.updateProfile(
+      request.user.sub,
+      updateUserDto,
+      response,
+    );
   }
 
   @Get('logout')

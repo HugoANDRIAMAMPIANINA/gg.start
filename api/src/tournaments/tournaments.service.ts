@@ -43,6 +43,49 @@ export class TournamentsService {
     });
   }
 
+  async findRecentUpcoming(limit = 10) {
+    const now = new Date();
+    return await this.tournamentsRepository
+      .createQueryBuilder('tournament')
+      .where('tournament.startDate > :now', { now })
+      .orderBy('tournament.startDate', 'ASC')
+      .take(limit)
+      .getMany();
+  }
+
+  async findRecentFinished(limit = 10) {
+    const now = new Date();
+    return await this.tournamentsRepository
+      .createQueryBuilder('tournament')
+      .where('tournament.endDate < :now', { now })
+      .orderBy('tournament.endDate', 'DESC')
+      .take(limit)
+      .getMany();
+  }
+
+  async findRecentOrganizedByUser(userId: string, limit = 10) {
+    return await this.tournamentsRepository
+      .createQueryBuilder('tournament')
+      .innerJoin('tournament.organizer', 'organizer')
+      .where('organizer.id = :userId', { userId })
+      .orderBy('tournament.startDate', 'DESC')
+      .take(limit)
+      .getMany();
+  }
+
+  async findRecentParticipatedByUser(userId: string, limit = 10) {
+    return await this.tournamentsRepository
+      .createQueryBuilder('tournament')
+      .innerJoin('tournament.brackets', 'bracket')
+      .innerJoin('bracket.players', 'bracketPlayer')
+      .innerJoin('bracketPlayer.user', 'user')
+      .where('user.id = :userId', { userId })
+      .distinct(true)
+      .orderBy('tournament.startDate', 'DESC')
+      .take(limit)
+      .getMany();
+  }
+
   async findOneById(id: string) {
     const tournament = await this.tournamentsRepository.findOne({
       where: { id },

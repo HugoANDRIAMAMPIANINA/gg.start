@@ -66,6 +66,50 @@ export class TournamentsController {
   }
 
   @Public()
+  @Get('recent/upcoming')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get upcoming recent tournaments',
+    description: 'Returns upcoming tournaments ordered by start date.',
+  })
+  findRecentUpcoming() {
+    return this.tournamentsService.findRecentUpcoming();
+  }
+
+  @Public()
+  @Get('recent/finished')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get recently finished tournaments',
+    description: 'Returns finished tournaments ordered by end date.',
+  })
+  findRecentFinished() {
+    return this.tournamentsService.findRecentFinished();
+  }
+
+  @Get('recent/organized')
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get recent tournaments organized by the authenticated user',
+    description: 'Returns the authenticated user’s most recent organized tournaments.',
+  })
+  findRecentOrganized(@Request() request) {
+    return this.tournamentsService.findRecentOrganizedByUser(request.user.sub);
+  }
+
+  @Get('recent/participated')
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get recent tournaments participated by the authenticated user',
+    description: 'Returns the authenticated user’s most recent participated tournaments.',
+  })
+  findRecentParticipated(@Request() request) {
+    return this.tournamentsService.findRecentParticipatedByUser(request.user.sub);
+  }
+
+  @Public()
   @Get(':tournamentId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({

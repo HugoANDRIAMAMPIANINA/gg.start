@@ -111,15 +111,30 @@ export class UsersService {
 
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.findOneById(id);
+
     const newName = updateUserDto.name;
     if (newName) {
       user.name = newName;
     }
+
     const newEmail = updateUserDto.email;
-    if (newEmail) {
+    if (newEmail && newEmail !== user.email) {
+      const emailExists = await this.userExists(newEmail);
+      if (emailExists) {
+        throw new ConflictException("L'adresse mail est déjà utilisée");
+      }
       user.email = newEmail;
     }
-    await this.usersRepository.save(user);
+
+    const newPassword = updateUserDto.password;
+    if (newPassword) {
+      const saltOrRounds = 10;
+      user.passwordHash = await bcrypt.hash(newPassword, saltOrRounds);
+    }
+
+    const updatedUser = await this.usersRepository.save(user);
+    const { passwordHash, refreshToken, ...result } = updatedUser;
+    return result;
   }
 
   async updateUserRefreshToken(user: User, refreshToken: string | null) {
