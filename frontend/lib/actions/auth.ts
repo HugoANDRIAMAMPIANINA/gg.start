@@ -12,6 +12,8 @@ import {
   setSessionTokens,
 } from "../session";
 import axios from "axios";
+import { fetchWithAuth } from "./api";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 interface RegisterFormResult {
   errors: RegisterFormErrors;
@@ -130,32 +132,15 @@ export interface UpdateProfileResult {
 
 export async function getCurrentUser(): Promise<SessionUser | null> {
   try {
-    const headers = await getAuthTokenHeaders();
-    const response = await apiClient.get("/auth/me", { headers });
+    const response = await fetchWithAuth(
+      {
+        method: "GET",
+        url: "/auth/me",
+      },
+      { redirectOnAuthFailure: false },
+    );
     return response.data ?? null;
-  } catch (error: any) {
-    if (axios.isAxiosError(error) && error.response?.status === 401) {
-      // Token expired — try refresh
-      try {
-        const refreshHeaders = await getAuthTokenHeaders();
-        const refreshResponse = await apiClient.get("/auth/refresh", {
-          headers: refreshHeaders,
-        });
-
-        const setCookieHeader = refreshResponse.headers["set-cookie"];
-        if (setCookieHeader) {
-          await setSessionTokens(setCookieHeader);
-        }
-
-        const newHeaders = await getAuthTokenHeaders();
-        const retryResponse = await apiClient.get("/auth/me", {
-          headers: newHeaders,
-        });
-        return retryResponse.data ?? null;
-      } catch {
-        return null; // refresh failed → truly logged out
-      }
-    }
+  } catch {
     return null;
   }
 }

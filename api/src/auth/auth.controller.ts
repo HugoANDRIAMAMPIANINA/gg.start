@@ -52,7 +52,7 @@ export class AuthController {
 
   @Public()
   @UseGuards(RefreshGuard)
-  @Get('refresh')
+  @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({
@@ -90,8 +90,8 @@ export class AuthController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'JWT token missing or invalid',
   })
-  getProfile(@Req() request) {
-    return request.user;
+  async getMe(@Req() request) {
+    return await this.authService.getMe(request);
   }
 
   @Patch('me')

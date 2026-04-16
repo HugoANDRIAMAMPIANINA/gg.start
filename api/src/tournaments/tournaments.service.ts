@@ -89,7 +89,16 @@ export class TournamentsService {
   async findOneById(id: string) {
     const tournament = await this.tournamentsRepository.findOne({
       where: { id },
-      relations: { brackets: true },
+      relations: { brackets: true, organizer: true },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        startDate: true,
+        endDate: true,
+        brackets: true,
+        organizer: { id: true, name: true },
+      },
     });
     if (!tournament) {
       throw new NotFoundException('Tournament not found');

@@ -27,15 +27,16 @@ POSTGRES_HOST=<inserer_ici>
 POSTGRES_PORT=<inserer_ici>
 
 JWT_ACCESS_TOKEN_SECRET=<inserer_ici>
-JWT_ACCESS_TOKEN_EXPIRATION=900000 # 15 minutes
+JWT_ACCESS_TOKEN_EXPIRATION=60000 # 1 minute (+ la durée d'expiration est courte, + le )
 TOKEN_COOKIES_EXPIRATION=604800000 # 1 semaine
 ```
 Remplacez les **<inserer_ici>** par vos propres variables de configuration
 
-**JWT_SECRET** est un secret utilisé pour signer les **access_token** JWT, libre à vous de le générer comme vous le souhaiter (ex: une chaîne de caractère en SHA256)
+**JWT_ACCESS_TOKEN_SECRET** est un secret utilisé pour signer les **access_token** JWT, libre à vous de le générer comme vous le souhaiter (ex: une chaîne de caractère en SHA256)
 Sur Linux, vous pouvez générer votre token avce la commande suivante :
 ```bash
-echo -n <une_chaine_de_caracteres_quelconque> | sha256sum
+# Sur Linux : générer un secret en SHA256 en ligne de commande
+echo -n un3_ch4in3_d3_c4r4ct3r35_qu3lc0nqu3 | sha256sum
 ```
 
 `ATTENTION : Le port de la base de données PostgreSQL, le port de l'API et le port du Frontend doivent être différents`
@@ -74,7 +75,7 @@ bun dev
 ## Utilisation
 
 - Une fois démarrée :
-  - l'interface web est accessible sur http://localhost:<FRONTEND_PORT>/
+  - l'interface web est accessible sur http://localhost:3000/
   - l'API gg.start est accessible sur http://localhost:<API_PORT>/
     - Pour vous familiariser l'API gg.start, visitez http://localhost:<API_PORT>/api/
       - Elle contient une documentation OpenAPI/Swagger permettant de tester toutes les requêtes disponibles et de comprendre à quoi elles servent

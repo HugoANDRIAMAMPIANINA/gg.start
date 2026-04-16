@@ -12,7 +12,7 @@ export default function UserAvatar() {
     );
   }
 
-  const usernameInitial = currentUser.username[0];
+  const usernameInitial = currentUser.name[0];
 
   return (
     <div className="avatar avatar-placeholder">
