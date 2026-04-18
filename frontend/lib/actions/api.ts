@@ -3,7 +3,7 @@
 import apiClient from "@/lib/apiClient";
 import { getAuthTokenHeaders, setSessionTokens } from "@/lib/session";
 import { redirect } from "next/navigation";
-import { AxiosRequestConfig, AxiosResponse } from "axios";
+import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 
 export async function fetchWithAuth(
   config: AxiosRequestConfig,
@@ -35,7 +35,6 @@ export async function fetchWithAuth(
       if (setCookieHeader) {
         await setSessionTokens(setCookieHeader);
       }
-      console.log(setCookieHeader);
 
       // Retry original request with fresh cookies
       const newHeaders = await getAuthTokenHeaders();
@@ -43,12 +42,11 @@ export async function fetchWithAuth(
         ...config,
         headers: { ...config.headers, ...newHeaders },
       });
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
       if (options.redirectOnAuthFailure) {
         redirect("/auth/login");
       }
-      throw new Error("Auth failed");
+      throw error;
     }
   }
 }

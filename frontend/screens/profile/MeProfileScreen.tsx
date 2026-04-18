@@ -36,7 +36,7 @@ export default function MeProfileScreen() {
       return;
     }
 
-    setName(currentUser.username);
+    setName(currentUser.name);
     setEmail(currentUser.email);
     setPassword("");
     setConfirmPassword("");
@@ -55,16 +55,16 @@ export default function MeProfileScreen() {
     }
 
     if (state?.user && currentUser) {
-      const updatedUsername = state.user.name ?? currentUser.username;
+      const updatedUsername = state.user.name ?? currentUser.name;
       const updatedEmail = state.user.email ?? currentUser.email;
 
       if (
-        updatedUsername !== currentUser.username ||
+        updatedUsername !== currentUser.name ||
         updatedEmail !== currentUser.email
       ) {
         setCurrentUser({
           ...currentUser,
-          username: updatedUsername,
+          name: updatedUsername,
           email: updatedEmail,
         });
       }
@@ -101,7 +101,7 @@ export default function MeProfileScreen() {
             <UserAvatar />
             <div>
               <p className="text-sm text-muted-foreground">Profil</p>
-              <h2 className="text-3xl font-semibold">{currentUser.username}</h2>
+              <h2 className="text-3xl font-semibold">{currentUser.name}</h2>
               <p className="text-sm text-muted-foreground">
                 {currentUser.email}
               </p>

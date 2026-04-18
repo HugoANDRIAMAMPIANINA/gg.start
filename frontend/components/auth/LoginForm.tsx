@@ -5,6 +5,9 @@ import { getCurrentUser, login, LoginFormErrors } from "@/lib/actions/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
+import { Input } from "../ui/Input";
+import FormField from "../ui/FormField";
+import Button from "../ui/Button";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -35,63 +38,39 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="card shadow-sm lg:w-md">
+    <div className="card shadow-sm mt-4 p-4 w-1/4">
       <form onSubmit={handleSubmit} className="card-body gap-12">
         <h1 className="font-medium text-3xl self-center">gg.start</h1>
         <h2 className="card-title self-center">Content de vous revoir !</h2>
 
         <div className="flex flex-col gap-2">
-          <div className="flex flex-col gap-1">
-            <label htmlFor="email" className="label">
-              Email
-            </label>
-            <input
+          <FormField label="Email" error={errors?.email}>
+            <Input
               id="email"
               name="email"
               type="email"
               placeholder="Email"
-              className="input input-primary w-full"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-          </div>
-          {errors?.email && <p className="text-error">{errors.email}</p>}
+          </FormField>
 
-          <div className="flex flex-col gap-1">
-            <label htmlFor="password" className="label">
-              Mot de passe
-            </label>
-            <input
+          <FormField label="Mot de passe" error={errors?.password}>
+            <Input
               id="password"
               name="password"
               type="password"
-              className="input input-primary w-full"
               placeholder="Mot de passe"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-          </div>
-          {errors?.password && (
-            <div>
-              <p>Password must:</p>
-              <ul>
-                {errors.password.map((error) => (
-                  <li key={error}>- {error}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {errors?.message && <p className="text-error">{errors.message}</p>}
+          </FormField>
         </div>
 
         <div className="card-actions justify-end">
-          <button
-            disabled={pending}
-            type="submit"
-            className="btn btn-primary w-full"
-          >
+          <Button width="full" disabled={pending} type="submit">
             Se connecter
-          </button>
+          </Button>
 
           <Link className="link link-primary" href={"/auth/register/"}>
             Créer un nouveau compte

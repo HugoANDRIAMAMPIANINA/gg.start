@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -86,6 +87,16 @@ export class BracketsService {
     const bracket = await this.bracketsRepository.findOne({
       where: { id },
       relations: { players: { user: true }, tournament: true },
+      select: {
+        id: true,
+        name: true,
+        game: true,
+        startDate: true,
+        tournament: { name: true },
+        state: true,
+        type: true,
+        players: { id: true, seed: true, user: { id: true, name: true } },
+      },
       order: { players: { seed: 'ASC' } },
     });
     if (!bracket) {
@@ -145,12 +156,25 @@ export class BracketsService {
 
     const bracket = await this.findOneById(id);
 
+    if (this.isUserInBracketPlayers(user.id, bracket.players)) {
+      throw new ConflictException('Utilisateur déjà inscrit');
+    }
+
     const bracketPlayer = new BracketPlayer();
     bracketPlayer.bracket = bracket;
     bracketPlayer.seed = bracket.players.length + 1;
     bracketPlayer.user = user;
 
     return await this.bracketPlayersRepository.save(bracketPlayer);
+  }
+
+  private isUserInBracketPlayers(
+    userId: string,
+    bracketPlayers: BracketPlayer[],
+  ): boolean {
+    return bracketPlayers.some(
+      (bracketPlayer) => bracketPlayer.user.id === userId,
+    );
   }
 
   async findPlayers(id: string): Promise<BracketPlayer[]> {

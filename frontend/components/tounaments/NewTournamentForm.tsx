@@ -2,6 +2,10 @@
 
 import { createTournament } from "@/lib/actions/tournaments";
 import { useActionState, useState } from "react";
+import { Input } from "../ui/Input";
+import FormField from "../ui/FormField";
+import { TextArea } from "../ui/TextArea";
+import Button from "../ui/Button";
 
 export default function NewTournamentForm() {
   const [state, action, pending] = useActionState(createTournament, undefined);
@@ -11,92 +15,64 @@ export default function NewTournamentForm() {
   const [endDate, setEndDate] = useState<string>("");
 
   return (
-    <div className="flex flex-col items-center w-screen">
-      <form action={action} className="flex flex-col gap-12">
+    <div className="card shadow-sm mt-4 p-4">
+      <form action={action} className="card-body gap-12">
         <h1 className="font-medium text-3xl self-center">Nouveau tournoi</h1>
 
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-col gap-1">
-            <label htmlFor="name" className="label">
-              Name
-            </label>
-            <input
+        <div className="flex flex-col gap-8">
+          <FormField label="Nom du tournoi" error={state?.errors.name}>
+            <Input
               id="name"
               name="name"
-              placeholder="Name"
-              className="input input-primary w-full"
+              placeholder="Nom du tournoi"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-          </div>
-          {state?.errors.name && (
-            <p className="text-error">{state.errors.name}</p>
-          )}
-        </div>
+          </FormField>
 
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-col gap-1">
-            <label htmlFor="description" className="label">
-              Description
-            </label>
-            <textarea
+          <FormField label="Description" error={state?.errors.description}>
+            <TextArea
               id="description"
               name="description"
               placeholder="Description"
-              className="textarea input-primary min-h-32 max-h-32 w-full"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
-          </div>
-          {state?.errors.description && (
-            <p className="text-error">{state.errors.description}</p>
-          )}
-        </div>
+          </FormField>
 
-        <div className="flex flex-row gap-12">
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-col gap-1">
-              <label htmlFor="startDate" className="label">
-                Date de début du tournoi
-              </label>
-              <input
+          <div className="flex flex-row gap-12">
+            <FormField
+              label="Date de début du tournoi"
+              error={state?.errors.startDate}
+            >
+              <Input
                 type="datetime-local"
                 id="startDate"
                 name="startDate"
                 value={startDate}
-                className="input input-primary w-full"
                 onChange={(e) => setStartDate(e.target.value)}
               />
-            </div>
-            {state?.errors.startDate && (
-              <p className="text-error">{state.errors.startDate}</p>
-            )}
-          </div>
+            </FormField>
 
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-col gap-1">
-              <label htmlFor="endDate" className="label">
-                Date de fin du tournoi
-              </label>
-              <input
+            <FormField
+              label="Date de fin du tournoi"
+              error={state?.errors.startDate}
+            >
+              <Input
                 type="datetime-local"
                 id="endDate"
                 name="endDate"
                 value={endDate}
-                className="input input-primary w-full"
                 onChange={(e) => setEndDate(e.target.value)}
               />
-            </div>
-            {state?.errors.endDate && (
-              <p className="text-error">{state.errors.endDate}</p>
-            )}
+            </FormField>
           </div>
         </div>
 
         <div className="justify-end">
-          <button disabled={pending} type="submit" className="btn btn-primary">
+          <Button disabled={pending} type="submit" className="btn btn-primary">
             Créer
-          </button>
+          </Button>
         </div>
       </form>
     </div>
