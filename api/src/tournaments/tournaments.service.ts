@@ -11,6 +11,11 @@ import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 
+type TournamentWithStats = Tournament & {
+  participantCount?: number;
+  resultText?: string;
+};
+
 @Injectable()
 export class TournamentsService {
   constructor(
@@ -43,47 +48,80 @@ export class TournamentsService {
     });
   }
 
-  async findRecentUpcoming(limit = 10) {
+  async findRecentUpcoming(limit = 10): Promise<TournamentWithStats[]> {
     const now = new Date();
-    return await this.tournamentsRepository
+    const tournaments = await this.tournamentsRepository
       .createQueryBuilder('tournament')
+      .leftJoinAndSelect('tournament.organizer', 'organizer')
+      .leftJoinAndSelect('tournament.brackets', 'bracket')
+      .leftJoinAndSelect('bracket.players', 'bracketPlayer')
+      .leftJoinAndSelect('bracketPlayer.user', 'playerUser')
       .where('tournament.startDate > :now', { now })
       .orderBy('tournament.startDate', 'ASC')
       .take(limit)
       .getMany();
+
+    return tournaments.map((tournament) => ({
+      ...tournament,
+      participantCount: this.getParticipantCount(tournament),
+    }));
   }
 
-  async findRecentFinished(limit = 10) {
+  async findRecentFinished(limit = 10): Promise<TournamentWithStats[]> {
     const now = new Date();
-    return await this.tournamentsRepository
+    const tournaments = await this.tournamentsRepository
       .createQueryBuilder('tournament')
+      .leftJoinAndSelect('tournament.organizer', 'organizer')
+      .leftJoinAndSelect('tournament.brackets', 'bracket')
+      .leftJoinAndSelect('bracket.players', 'bracketPlayer')
+      .leftJoinAndSelect('bracketPlayer.user', 'playerUser')
       .where('tournament.endDate < :now', { now })
       .orderBy('tournament.endDate', 'DESC')
       .take(limit)
       .getMany();
+
+    return tournaments.map((tournament) => ({
+      ...tournament,
+      participantCount: this.getParticipantCount(tournament),
+    }));
   }
 
-  async findRecentOrganizedByUser(userId: string, limit = 10) {
-    return await this.tournamentsRepository
+  async findRecentOrganizedByUser(userId: string, limit = 10): Promise<TournamentWithStats[]> {
+    const tournaments = await this.tournamentsRepository
       .createQueryBuilder('tournament')
-      .innerJoin('tournament.organizer', 'organizer')
+      .leftJoinAndSelect('tournament.organizer', 'organizer')
+      .leftJoinAndSelect('tournament.brackets', 'bracket')
+      .leftJoinAndSelect('bracket.players', 'bracketPlayer')
+      .leftJoinAndSelect('bracketPlayer.user', 'playerUser')
       .where('organizer.id = :userId', { userId })
       .orderBy('tournament.startDate', 'DESC')
       .take(limit)
       .getMany();
+
+    return tournaments.map((tournament) => ({
+      ...tournament,
+      participantCount: this.getParticipantCount(tournament),
+    }));
   }
 
-  async findRecentParticipatedByUser(userId: string, limit = 10) {
-    return await this.tournamentsRepository
+  async findRecentParticipatedByUser(userId: string, limit = 10): Promise<TournamentWithStats[]> {
+    const tournaments = await this.tournamentsRepository
       .createQueryBuilder('tournament')
-      .innerJoin('tournament.brackets', 'bracket')
-      .innerJoin('bracket.players', 'bracketPlayer')
-      .innerJoin('bracketPlayer.user', 'user')
-      .where('user.id = :userId', { userId })
+      .leftJoinAndSelect('tournament.organizer', 'organizer')
+      .leftJoinAndSelect('tournament.brackets', 'bracket')
+      .leftJoinAndSelect('bracket.players', 'bracketPlayer')
+      .leftJoinAndSelect('bracketPlayer.user', 'playerUser')
+      .where('playerUser.id = :userId', { userId })
       .distinct(true)
       .orderBy('tournament.startDate', 'DESC')
       .take(limit)
       .getMany();
+
+    return tournaments.map((tournament) => ({
+      ...tournament,
+      participantCount: this.getParticipantCount(tournament),
+      resultText: this.getTournamentResultText(tournament, userId),
+    }));
   }
 
   async findOneById(id: string) {
@@ -108,6 +146,63 @@ export class TournamentsService {
 
   async findByName(name: string) {
     return await this.tournamentsRepository.find({ where: { name: name } });
+  }
+
+  private getParticipantCount(tournament: Tournament): number {
+    const participantIds = new Set<string>();
+
+    if (tournament.brackets) {
+      tournament.brackets.forEach((bracket) => {
+        bracket.players?.forEach((player) => {
+          if (player.user?.id) {
+            participantIds.add(player.user.id);
+          } else if (player.id) {
+            participantIds.add(player.id);
+          }
+        });
+      });
+    }
+
+    return participantIds.size;
+  }
+
+  private getTournamentResultText(tournament: Tournament, userId: string): string | undefined {
+    const stats = [] as Array<{ userId: string; wins: number; score: number }>;
+
+    tournament.brackets?.forEach((bracket) => {
+      bracket.players?.forEach((player) => {
+        if (!player.user?.id) {
+          return;
+        }
+
+        stats.push({
+          userId: player.user.id,
+          wins: player.getWinCount(),
+          score: player.getTotalScore(),
+        });
+      });
+    });
+
+    const distinctPlayerIds = Array.from(new Set(stats.map((item) => item.userId)));
+    const target = stats.find((item) => item.userId === userId);
+    if (!target) {
+      return undefined;
+    }
+
+    const ranking = stats
+      .sort((a, b) => {
+        if (b.wins !== a.wins) {
+          return b.wins - a.wins;
+        }
+        return b.score - a.score;
+      })
+      .findIndex((item) => item.userId === userId);
+
+    if (ranking === -1) {
+      return undefined;
+    }
+
+    return `${ranking + 1}e / ${distinctPlayerIds.length}`;
   }
 
   async update(id: string, updateTournamentDto: UpdateTournamentDto) {

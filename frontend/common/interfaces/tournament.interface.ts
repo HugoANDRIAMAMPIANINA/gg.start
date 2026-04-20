@@ -9,4 +9,6 @@ export interface Tournament {
   startDate: string;
   endDate: string;
   organizer: User;
+  participantCount?: number;
+  resultText?: string;
 }

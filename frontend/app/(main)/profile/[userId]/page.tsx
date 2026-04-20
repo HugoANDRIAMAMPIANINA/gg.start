@@ -1,10 +1,11 @@
 import UserProfileScreen from "@/screens/profile/UserProfileScreen";
 
-export default async function MeProfilePage({
+export default async function UserProfilePage({
   params,
 }: {
   params: Promise<{ userId: string }>;
 }) {
-  const { userId } = await params;
-  return <UserProfileScreen userId={userId} />;
+  const resolvedParams = await params;
+
+  return <UserProfileScreen userId={resolvedParams.userId} />;
 }

@@ -1,18 +1,23 @@
 "use client";
 
+"use client";
+
 import { useActionState, useEffect, useState, useContext } from "react";
 import { useRouter } from "next/navigation";
 import { UserContext } from "@/common/contexts/UserContext";
 import { updateProfile, UpdateProfileResult } from "@/lib/actions/auth";
+import apiClient from "@/lib/apiClient";
+import { Tournament } from "@/common/interfaces/tournament.interface";
+import TournamentsSection from "@/components/TournamentsSection";
 import UserAvatar from "@/components/user/UserAvatar";
 
 export default function MeProfileScreen() {
   const router = useRouter();
   const { currentUser, setCurrentUser, isLoading } = useContext(UserContext);
-  const [state, action, pending] = useActionState<
-    UpdateProfileResult | undefined,
-    FormData
-  >((_state, formData) => updateProfile(formData), undefined);
+  const [state, action, pending] = useActionState<UpdateProfileResult | undefined, FormData>(
+    (_state, formData) => updateProfile(formData),
+    undefined,
+  );
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,10 +25,11 @@ export default function MeProfileScreen() {
   const [successMessage, setSuccessMessage] = useState("");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isPasswordEditEnabled, setIsPasswordEditEnabled] = useState(false);
+  const [organized, setOrganized] = useState<Tournament[]>([]);
+  const [participated, setParticipated] = useState<Tournament[]>([]);
+  const [tournamentsLoading, setTournamentsLoading] = useState(true);
 
-  const hasPasswordAttempt = Boolean(
-    isPasswordEditEnabled && (password || confirmPassword),
-  );
+  const hasPasswordAttempt = Boolean(isPasswordEditEnabled && (password || confirmPassword));
 
   useEffect(() => {
     if (!isLoading && !currentUser) {
@@ -36,7 +42,7 @@ export default function MeProfileScreen() {
       return;
     }
 
-    setName(currentUser.username);
+    setName(currentUser.name);
     setEmail(currentUser.email);
     setPassword("");
     setConfirmPassword("");
@@ -55,16 +61,16 @@ export default function MeProfileScreen() {
     }
 
     if (state?.user && currentUser) {
-      const updatedUsername = state.user.name ?? currentUser.username;
+      const updatedUsername = state.user.name ?? currentUser.name;
       const updatedEmail = state.user.email ?? currentUser.email;
 
       if (
-        updatedUsername !== currentUser.username ||
+        updatedUsername !== currentUser.name ||
         updatedEmail !== currentUser.email
       ) {
         setCurrentUser({
           ...currentUser,
-          username: updatedUsername,
+          name: updatedUsername,
           email: updatedEmail,
         });
       }
@@ -76,6 +82,43 @@ export default function MeProfileScreen() {
       setConfirmPassword("");
     }
   }, [password]);
+
+  useEffect(() => {
+    async function loadTournaments() {
+      if (!currentUser) {
+        setOrganized([]);
+        setParticipated([]);
+        setTournamentsLoading(false);
+        return;
+      }
+
+      setTournamentsLoading(true);
+      try {
+        const [organizedResult, participatedResult] = await Promise.allSettled([
+          apiClient.get<Tournament[]>("/tournaments/recent/organized"),
+          apiClient.get<Tournament[]>("/tournaments/recent/participated"),
+        ]);
+
+        setOrganized(
+          organizedResult.status === "fulfilled"
+            ? organizedResult.value.data ?? []
+            : [],
+        );
+        setParticipated(
+          participatedResult.status === "fulfilled"
+            ? participatedResult.value.data ?? []
+            : [],
+        );
+      } catch {
+        setOrganized([]);
+        setParticipated([]);
+      } finally {
+        setTournamentsLoading(false);
+      }
+    }
+
+    loadTournaments();
+  }, [currentUser]);
 
   if (!currentUser && isLoading) {
     return (
@@ -101,10 +144,8 @@ export default function MeProfileScreen() {
             <UserAvatar />
             <div>
               <p className="text-sm text-muted-foreground">Profil</p>
-              <h2 className="text-3xl font-semibold">{currentUser.username}</h2>
-              <p className="text-sm text-muted-foreground">
-                {currentUser.email}
-              </p>
+              <h2 className="text-3xl font-semibold">{currentUser.name}</h2>
+              <p className="text-sm text-muted-foreground">{currentUser.email}</p>
             </div>
           </div>
 
@@ -118,17 +159,35 @@ export default function MeProfileScreen() {
         </div>
       </section>
 
+      <section className="space-y-10">
+        {tournamentsLoading ? (
+          <div className="space-y-6">
+            <div className="h-28 rounded-3xl bg-base-200 animate-pulse" />
+            <div className="h-28 rounded-3xl bg-base-200 animate-pulse" />
+          </div>
+        ) : (
+          <>
+            <TournamentsSection
+              title="Derniers tournois organisés"
+              tournaments={organized}
+              emptyMessage="Aucun tournoi organisé récemment."
+            />
+            <TournamentsSection
+              title="Derniers tournois participés"
+              tournaments={participated}
+              emptyMessage="Aucun tournoi participé récemment."
+            />
+          </>
+        )}
+      </section>
+
       {isEditModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-2xl overflow-hidden rounded-3xl border border-base-200 bg-base-100 shadow-2xl">
             <div className="flex items-center justify-between border-b border-base-200 px-6 py-4">
               <div>
-                <p className="text-sm text-muted-foreground">
-                  Modifier le profil
-                </p>
-                <h4 className="text-xl font-semibold">
-                  Informations personnelles
-                </h4>
+                <p className="text-sm text-muted-foreground">Modifier le profil</p>
+                <h4 className="text-xl font-semibold">Informations personnelles</h4>
               </div>
               <button
                 type="button"
