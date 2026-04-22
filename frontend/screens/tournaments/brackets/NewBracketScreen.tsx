@@ -4,7 +4,7 @@ import NewBracketForm from "@/components/brackets/NewBracketForm";
 
 export default function NewBracketScreen() {
   return (
-    <main>
+    <main className="flex flex-col items-center justify-center">
       <NewBracketForm />
     </main>
   );

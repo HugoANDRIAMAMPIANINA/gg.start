@@ -104,8 +104,12 @@ export class BracketsController {
     @Param('bracketId') bracketId: string,
     @Body() createBracketPlayerDto: CreateBracketPlayerDto,
   ) {
-    await this.bracketsService.addPlayer(bracketId, createBracketPlayerDto);
+    const bracketPlayer = await this.bracketsService.addPlayer(
+      bracketId,
+      createBracketPlayerDto,
+    );
     await this.bracketsService.generateBracket(bracketId);
+    return bracketPlayer;
   }
 
   @Public()

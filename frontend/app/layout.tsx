@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { roboto, robotoMono } from "@/global/fonts";
 import "./globals.css";
 import UserProvider from "@/common/providers/UserProvider";
+import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
   title: "gg.start",
@@ -18,7 +19,10 @@ export default async function RootLayout({
       <body
         className={`${roboto.variable} ${robotoMono.variable} min-h-screen antialiased`}
       >
-        <UserProvider initialUser={null}>{children}</UserProvider>
+        <UserProvider initialUser={null}>
+          <Navbar />
+          {children}
+        </UserProvider>
       </body>
     </html>
   );

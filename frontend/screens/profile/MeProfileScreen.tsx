@@ -145,7 +145,9 @@ export default function MeProfileScreen() {
             <div>
               <p className="text-sm text-muted-foreground">Profil</p>
               <h2 className="text-3xl font-semibold">{currentUser.name}</h2>
-              <p className="text-sm text-muted-foreground">{currentUser.email}</p>
+              <p className="text-sm text-muted-foreground">
+                {currentUser.email}
+              </p>
             </div>
           </div>
 

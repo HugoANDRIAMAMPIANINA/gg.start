@@ -5,6 +5,9 @@ import { BracketType } from "@/common/enums/bracket-type.enum";
 import { createBracket } from "@/lib/actions/tournaments";
 import { useParams } from "next/navigation";
 import { useActionState, useState } from "react";
+import { Input } from "../ui/Input";
+import FormField from "../ui/FormField";
+import Button from "../ui/Button";
 
 export default function NewBracketForm() {
   const { tournamentId } = useParams();
@@ -17,103 +20,76 @@ export default function NewBracketForm() {
   const [startDate, setStartDate] = useState<string>("");
 
   return (
-    <div className="flex flex-col items-center w-screen">
-      <form action={action} className="flex flex-col gap-12">
+    <div className="card shadow-sm mt-4 p-4">
+      <form action={action} className="card-body gap-12">
         <h1 className="font-medium text-3xl self-center">
           Ajouter un arbre de tournoi
         </h1>
 
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-col gap-1">
-            <label htmlFor="name" className="label">
-              Nom
-            </label>
-            <input
-              id="name"
-              name="name"
-              placeholder="Name"
-              className="input input-primary w-full"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-          {state?.errors.name && (
-            <p className="text-error">{state.errors.name}</p>
-          )}
-        </div>
+        <FormField label="Nom de l'arbre de tournoi" error={state?.errors.name}>
+          <Input
+            id="name"
+            name="name"
+            placeholder="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </FormField>
 
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-col gap-1">
-            <label htmlFor="game" className="label">
-              Jeu
-            </label>
-            <select
-              id="game"
-              name="game"
-              className="select select-primary w-full"
-              value={game}
-              onChange={(e) => setGame(e.target.value)}
-              required
-            >
-              <option disabled={true}>Sélection du jeu</option>
-              {fightingGames.map((game) => (
-                <option key={game} value={game}>
-                  {game}
-                </option>
-              ))}
-            </select>
-          </div>
-          {state?.errors.game && (
-            <p className="text-error">{state.errors.game}</p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-col gap-1">
-            <label htmlFor="bracketType" className="label">
-              Type
-            </label>
-            <select
-              id="bracketType"
-              name="bracketType"
-              className="select select-primary w-full"
-              value={bracketType}
-              onChange={(e) => setBracketType(e.target.value)}
-              required
-            >
-              <option value={BracketType.SINGLE_ELIM}>
-                Elimination directe (Single Elimination)
+        <FormField label="Jeu" error={state?.errors.game}>
+          <select
+            id="game"
+            name="game"
+            className="select select-primary w-full"
+            value={game}
+            onChange={(e) => setGame(e.target.value)}
+            required
+          >
+            <option disabled={true}>Sélection du jeu</option>
+            {fightingGames.map((game) => (
+              <option key={game} value={game}>
+                {game}
               </option>
-              <option value={BracketType.DOUBLE_ELIM} disabled>
-                Double Elimination
-              </option>
-            </select>
-          </div>
-          {state?.errors.bracketType && (
-            <p className="text-error">{state.errors.bracketType}</p>
-          )}
-        </div>
+            ))}
+          </select>
+        </FormField>
 
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-col gap-1">
-            <label htmlFor="startDate" className="label">
-              Date de début de l'arbre
-            </label>
-            <input
-              type="datetime-local"
-              id="startDate"
-              name="startDate"
-              value={startDate}
-              className="input input-primary w-full"
-              onChange={(e) => setStartDate(e.target.value)}
-              required
-            />
-          </div>
-          {state?.errors.startDate && (
-            <p className="text-error">{state.errors.startDate}</p>
-          )}
-        </div>
+        <FormField
+          label="Format de l'arbre de tournoi"
+          error={state?.errors.bracketType}
+        >
+          <select
+            id="bracketType"
+            name="bracketType"
+            className="select select-primary w-full"
+            value={bracketType}
+            onChange={(e) => setBracketType(e.target.value)}
+            required
+          >
+            <option value={BracketType.SINGLE_ELIM}>
+              Elimination directe (Single Elimination)
+            </option>
+            <option value={BracketType.DOUBLE_ELIM} disabled>
+              Double Elimination
+            </option>
+          </select>
+        </FormField>
+
+        <FormField
+          label="Date de début de l'arbre de tournoi"
+          error={state?.errors.name}
+        >
+          <Input
+            type="datetime-local"
+            id="startDate"
+            name="startDate"
+            value={startDate}
+            className="input input-primary w-full"
+            onChange={(e) => setStartDate(e.target.value)}
+            required
+          />
+        </FormField>
 
         <input
           type="hidden"
@@ -127,9 +103,9 @@ export default function NewBracketForm() {
         )}
 
         <div className="justify-end">
-          <button disabled={pending} type="submit" className="btn btn-primary">
+          <Button disabled={pending} type="submit">
             Créer
-          </button>
+          </Button>
         </div>
       </form>
     </div>
