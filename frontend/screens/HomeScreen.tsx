@@ -73,20 +73,20 @@ export default function HomeScreen() {
       ) : (
         <>
           <TournamentsSection
-            title="Tournois récents en cours de lancement"
+            title="Upcoming"
             tournaments={upcoming}
             emptyMessage="Aucun tournoi à venir pour le moment."
           />
 
           <TournamentsSection
-            title="Tournois récents finis"
+            title="Récemment terminés"
             tournaments={finished}
             emptyMessage="Aucun tournoi terminé récemment."
           />
 
           {currentUser && organized.length > 0 && (
             <TournamentsSection
-              title="Tournois les plus récents organisés"
+              title="Derniers tournois organisés"
               tournaments={organized}
               emptyMessage="Aucun tournoi organisé récemment."
             />
@@ -94,7 +94,7 @@ export default function HomeScreen() {
 
           {currentUser && participated.length > 0 && (
             <TournamentsSection
-              title="Tournois les plus récents participés"
+              title="Derniers tournois participés"
               tournaments={participated}
               emptyMessage="Aucun tournoi auquel vous avez participé récemment."
             />

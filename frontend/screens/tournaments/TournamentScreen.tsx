@@ -41,7 +41,15 @@ export default function TournamentScreen() {
         <div>
           <h1>{tournament.name}</h1>
           <p>{tournament.description}</p>
-          <p>{tournament.organizer.name}</p>
+          <p>
+            Organisé par{' '}
+            <Link
+              href={`/profile/${tournament.organizer.id}`}
+              className="font-medium text-primary hover:underline"
+            >
+              {tournament.organizer.name}
+            </Link>
+          </p>
           <p>{formatDate(tournament.startDate)}</p>
           <p>{formatDate(tournament.endDate)}</p>
           {currentUser && tournament.organizer.id === currentUser.id && (

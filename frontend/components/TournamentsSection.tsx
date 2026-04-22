@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useState, type PointerEvent } from "react";
 import { Tournament } from "@/common/interfaces/tournament.interface";
 import TournamentCard from "@/components/TournamentCard";
 
@@ -14,6 +15,53 @@ export default function TournamentsSection({
   tournaments,
   emptyMessage,
 }: TournamentsSectionProps) {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const isPointerDownRef = useRef(false);
+  const hasDraggedRef = useRef(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    isPointerDownRef.current = true;
+    hasDraggedRef.current = false;
+    setStartX(event.clientX);
+    setScrollLeft(container.scrollLeft);
+  };
+
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    const container = scrollRef.current;
+    if (!container || !isPointerDownRef.current) return;
+
+    const x = event.clientX;
+    const walk = x - startX;
+    const dragThreshold = 10;
+
+    if (!hasDraggedRef.current && Math.abs(walk) > dragThreshold) {
+      hasDraggedRef.current = true;
+      setIsDragging(true);
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+
+    if (hasDraggedRef.current) {
+      container.scrollLeft = scrollLeft - walk;
+    }
+  };
+
+  const stopDragging = (event: PointerEvent<HTMLDivElement>) => {
+    const container = scrollRef.current;
+    if (container && hasDraggedRef.current) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+
+    isPointerDownRef.current = false;
+    hasDraggedRef.current = false;
+    setIsDragging(false);
+  };
+
   return (
     <section className="mb-10">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -29,7 +77,15 @@ export default function TournamentsSection({
       </div>
 
       {tournaments.length > 0 ? (
-        <div className="overflow-x-auto pb-4">
+        <div
+          ref={scrollRef}
+          className={`overflow-x-auto pb-4 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={stopDragging}
+          onPointerLeave={stopDragging}
+          style={{ touchAction: "pan-y" }}
+        >
           <ul className="flex gap-4">
             {tournaments.map((tournament) => (
               <TournamentCard key={tournament.id} tournament={tournament} />
