@@ -7,7 +7,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
@@ -44,8 +44,12 @@ export class UsersService {
     return result;
   }
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  findAll(name?: string, limit?: number): Promise<User[]> {
+    return this.usersRepository.find({
+      where: { name: Like(`${name}%`) },
+      take: limit,
+      select: { id: true, name: true, email: true },
+    });
   }
 
   async findOneById(id: string): Promise<User> {

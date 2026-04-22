@@ -56,7 +56,6 @@ export async function createTournament(
   }
 
   const { name, description, startDate, endDate } = validatedFields.data;
-  console.log(name, description, startDate, endDate);
 
   let tournamentId = "";
   try {
@@ -73,7 +72,6 @@ export async function createTournament(
     const tournament: Tournament = response.data;
     tournamentId = tournament.id;
   } catch (error: any) {
-    console.log(error);
     return { errors: { message: error.message } };
   }
 
@@ -110,8 +108,6 @@ export async function createBracket(
 
   const { name, game, bracketType, startDate, tournamentId } =
     validatedFields.data;
-  console.log(bracketType);
-  console.log(name, game, bracketType, startDate, tournamentId);
 
   let bracketId = "";
   try {
@@ -129,7 +125,6 @@ export async function createBracket(
     const bracket: Bracket = response.data;
     bracketId = bracket.id;
   } catch (error: any) {
-    console.log(error.response.data.message);
     return { errors: { message: error.response.data.message } };
   }
 

@@ -21,7 +21,6 @@ export default function UserProvider({
     async function fetchCurrentUser() {
       if (!initialUser) {
         const user = await getCurrentUser();
-        console.log(user);
         setCurrentUser(user);
         setIsLoading(false);
       }

@@ -13,7 +13,6 @@ import {
 } from "../session";
 import axios from "axios";
 import { fetchWithAuth } from "./api";
-import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 interface RegisterFormResult {
   errors: RegisterFormErrors;
@@ -111,7 +110,11 @@ export async function login(
 
 export async function logout() {
   const headers = await getAuthTokenHeaders();
-  await apiClient.get("/auth/logout", { headers: headers });
+  await fetchWithAuth({
+    method: "POST",
+    url: "/auth/logout",
+    headers: headers,
+  });
   await deleteSessionTokens();
   redirect("/auth/login/");
 }
@@ -132,7 +135,6 @@ export interface UpdateProfileResult {
 
 export async function getCurrentUser(): Promise<SessionUser | null> {
   try {
-    console.log("test refresh");
     const response = await fetchWithAuth(
       {
         method: "GET",
@@ -140,10 +142,8 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
       },
       { redirectOnAuthFailure: false },
     );
-    console.log(response);
     return response.data ?? null;
   } catch (error) {
-    console.log(error);
     return null;
   }
 }
