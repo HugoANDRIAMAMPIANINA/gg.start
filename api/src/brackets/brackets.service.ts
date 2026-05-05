@@ -86,13 +86,13 @@ export class BracketsService {
   async findOneById(id: string): Promise<Bracket> {
     const bracket = await this.bracketsRepository.findOne({
       where: { id },
-      relations: { players: { user: true }, tournament: true },
+      relations: { players: { user: true }, tournament: { organizer: true } },
       select: {
         id: true,
         name: true,
         game: true,
         startDate: true,
-        tournament: { name: true },
+        tournament: { name: true, organizer: { id: true } },
         state: true,
         type: true,
         players: { id: true, seed: true, user: { id: true, name: true } },

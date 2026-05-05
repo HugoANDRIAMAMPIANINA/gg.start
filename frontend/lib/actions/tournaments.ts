@@ -2,9 +2,7 @@
 
 import { FormState } from "@/common/states/register-form.state";
 import { redirect } from "next/navigation";
-import apiClient from "../apiClient";
 import { NewTournamentFormSchema } from "@/common/schemas/new-tournament.schema";
-import { getAuthTokenHeaders } from "../session";
 import { Tournament } from "@/common/interfaces/tournament.interface";
 import { NewBracketFormSchema } from "@/common/schemas/new-bracket.schema";
 import { Bracket } from "@/common/interfaces/bracket.interface";

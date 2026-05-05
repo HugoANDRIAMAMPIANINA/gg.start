@@ -98,6 +98,10 @@ export class MatchesService {
     [player1, player2] = await this.matchPlayersRepository.save(matchPlayers);
 
     const winner = player1.score > player2.score ? player1 : player2;
+
+    winner.isWinner = true;
+    await this.matchPlayersRepository.save(winner);
+
     const loser = winner === player1 ? player2 : player1;
 
     await this.updateMatchState(match, MatchState.COMPLETED);

@@ -18,6 +18,7 @@ export default async function RootLayout({
     <html lang="en" className="dracula">
       <body
         className={`${roboto.variable} ${robotoMono.variable} min-h-screen antialiased`}
+        cz-shortcut-listen="true"
       >
         <UserProvider initialUser={null}>
           <Navbar />

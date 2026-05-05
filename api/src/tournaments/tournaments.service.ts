@@ -8,7 +8,7 @@ import { UpdateTournamentDto } from './dto/update-tournament.dto';
 import { Tournament } from './entities/tournament.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { ArrayContains, LessThan, MoreThan, Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 
 type TournamentWithStats = Tournament & {
@@ -50,16 +50,25 @@ export class TournamentsService {
 
   async findRecentUpcoming(limit = 10): Promise<TournamentWithStats[]> {
     const now = new Date();
-    const tournaments = await this.tournamentsRepository
-      .createQueryBuilder('tournament')
-      .leftJoinAndSelect('tournament.organizer', 'organizer')
-      .leftJoinAndSelect('tournament.brackets', 'bracket')
-      .leftJoinAndSelect('bracket.players', 'bracketPlayer')
-      .leftJoinAndSelect('bracketPlayer.user', 'playerUser')
-      .where('tournament.startDate > :now', { now })
-      .orderBy('tournament.startDate', 'ASC')
-      .take(limit)
-      .getMany();
+
+    const tournaments = await this.tournamentsRepository.find({
+      relations: {
+        brackets: { players: true },
+        organizer: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        startDate: true,
+        endDate: true,
+        brackets: { id: true, players: true },
+        organizer: { id: true, name: true },
+      },
+      where: { startDate: MoreThan(now) },
+      order: { startDate: 'ASC' },
+      take: limit,
+    });
 
     return tournaments.map((tournament) => ({
       ...tournament,
@@ -69,16 +78,25 @@ export class TournamentsService {
 
   async findRecentFinished(limit = 10): Promise<TournamentWithStats[]> {
     const now = new Date();
-    const tournaments = await this.tournamentsRepository
-      .createQueryBuilder('tournament')
-      .leftJoinAndSelect('tournament.organizer', 'organizer')
-      .leftJoinAndSelect('tournament.brackets', 'bracket')
-      .leftJoinAndSelect('bracket.players', 'bracketPlayer')
-      .leftJoinAndSelect('bracketPlayer.user', 'playerUser')
-      .where('tournament.endDate < :now', { now })
-      .orderBy('tournament.endDate', 'DESC')
-      .take(limit)
-      .getMany();
+
+    const tournaments = await this.tournamentsRepository.find({
+      relations: {
+        brackets: { players: true },
+        organizer: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        startDate: true,
+        endDate: true,
+        brackets: { id: true, players: true },
+        organizer: { id: true, name: true },
+      },
+      where: { endDate: LessThan(now) },
+      order: { endDate: 'DESC' },
+      take: limit,
+    });
 
     return tournaments.map((tournament) => ({
       ...tournament,
@@ -86,7 +104,10 @@ export class TournamentsService {
     }));
   }
 
-  async findRecentOrganizedByUser(userId: string, limit = 10): Promise<TournamentWithStats[]> {
+  async findRecentOrganizedByUser(
+    userId: string,
+    limit = 10,
+  ): Promise<TournamentWithStats[]> {
     const tournaments = await this.tournamentsRepository
       .createQueryBuilder('tournament')
       .leftJoinAndSelect('tournament.organizer', 'organizer')
@@ -104,18 +125,40 @@ export class TournamentsService {
     }));
   }
 
-  async findRecentParticipatedByUser(userId: string, limit = 10): Promise<TournamentWithStats[]> {
-    const tournaments = await this.tournamentsRepository
-      .createQueryBuilder('tournament')
-      .leftJoinAndSelect('tournament.organizer', 'organizer')
-      .leftJoinAndSelect('tournament.brackets', 'bracket')
-      .leftJoinAndSelect('bracket.players', 'bracketPlayer')
-      .leftJoinAndSelect('bracketPlayer.user', 'playerUser')
-      .where('playerUser.id = :userId', { userId })
-      .distinct(true)
-      .orderBy('tournament.startDate', 'DESC')
-      .take(limit)
-      .getMany();
+  async findRecentParticipatedByUser(
+    userId: string,
+    limit = 10,
+  ): Promise<TournamentWithStats[]> {
+    // const tournaments = await this.tournamentsRepository
+    //   .createQueryBuilder('tournament')
+    //   .leftJoinAndSelect('tournament.organizer', 'organizer')
+    //   .leftJoinAndSelect('tournament.brackets', 'bracket')
+    //   .leftJoinAndSelect('bracket.players', 'bracketPlayer')
+    //   .leftJoinAndSelect('bracketPlayer.user', 'playerUser')
+    //   .where('playerUser.id = :userId', { userId })
+    //   .distinct(true)
+    //   .orderBy('tournament.startDate', 'DESC')
+    //   .take(limit)
+    //   .getMany();
+
+    const tournaments = await this.tournamentsRepository.find({
+      relations: {
+        brackets: { players: true },
+        organizer: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        startDate: true,
+        endDate: true,
+        brackets: { id: true, players: true },
+        organizer: { id: true, name: true },
+      },
+      where: { brackets: { players: { user: { id: userId } } } },
+      order: { startDate: 'DESC' },
+      take: limit,
+    });
 
     return tournaments.map((tournament) => ({
       ...tournament,
@@ -153,7 +196,7 @@ export class TournamentsService {
 
     if (tournament.brackets) {
       tournament.brackets.forEach((bracket) => {
-        bracket.players?.forEach((player) => {
+        bracket.players.forEach((player) => {
           if (player.user?.id) {
             participantIds.add(player.user.id);
           } else if (player.id) {
@@ -166,11 +209,14 @@ export class TournamentsService {
     return participantIds.size;
   }
 
-  private getTournamentResultText(tournament: Tournament, userId: string): string | undefined {
+  private getTournamentResultText(
+    tournament: Tournament,
+    userId: string,
+  ): string | undefined {
     const stats = [] as Array<{ userId: string; wins: number; score: number }>;
 
-    tournament.brackets?.forEach((bracket) => {
-      bracket.players?.forEach((player) => {
+    tournament.brackets.forEach((bracket) => {
+      bracket.players.forEach((player) => {
         if (!player.user?.id) {
           return;
         }
@@ -183,7 +229,9 @@ export class TournamentsService {
       });
     });
 
-    const distinctPlayerIds = Array.from(new Set(stats.map((item) => item.userId)));
+    const distinctPlayerIds = Array.from(
+      new Set(stats.map((item) => item.userId)),
+    );
     const target = stats.find((item) => item.userId === userId);
     if (!target) {
       return undefined;

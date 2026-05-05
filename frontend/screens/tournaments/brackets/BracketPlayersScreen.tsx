@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import Loader from "@/components/ui/Loader";
 import { Modal } from "@/components/ui/Modal";
+import { isPlayer } from "@/helpers/user";
 import { registerUserToBracket } from "@/lib/actions/brackets";
 import { fetchUsersByName } from "@/lib/actions/users";
 import apiClient from "@/lib/apiClient";
@@ -20,6 +21,7 @@ export default function BracketPlayersScreen() {
   const [bracketPlayers, setBracketPlayers] = useState<BracketPlayer[]>();
   const [error, setError] = useState<any>();
   const [loading, setLoading] = useState<boolean>(true);
+  const [modalErrorMessage, setModalErrorMessage] = useState("");
 
   const [isRegisterUserModalOpen, setIsRegisterUserModalOpen] =
     useState<boolean>(false);
@@ -56,8 +58,9 @@ export default function BracketPlayersScreen() {
       bracketId as string,
     );
     if (errorMessage) {
-      setError(errorMessage);
+      setModalErrorMessage(errorMessage);
     }
+    setIsRegisterUserModalOpen(true);
     setIsRegisterUserModalOpen(false);
   };
 
@@ -79,13 +82,15 @@ export default function BracketPlayersScreen() {
 
   return (
     <main>
-      {!isLoading && currentUser && (
-        <div className="flex flex-row gap-4">
-          <Button onClick={() => registerUser(currentUser.id)}>
-            S'inscrire à l'arbre de tournoi
-          </Button>
-        </div>
-      )}
+      {!isLoading &&
+        currentUser &&
+        !isPlayer(currentUser, bracketId as string) && (
+          <div className="flex flex-row gap-4">
+            <Button onClick={() => registerUser(currentUser.id)}>
+              S'inscrire à l'arbre de tournoi
+            </Button>
+          </div>
+        )}
 
       <Button onClick={() => setIsRegisterUserModalOpen(true)}>
         Inscrire un joueur
@@ -132,7 +137,7 @@ export default function BracketPlayersScreen() {
       </Modal>
 
       {loading && <Loader />}
-      {error && <p>{error}</p>}
+      {error && <p className="text-error">{error}</p>}
       {bracketPlayers &&
         bracketPlayers.map((bracketPlayer) => (
           <div key={bracketPlayer.id} className="grid grid-cols-2 w-1/4">
