@@ -11,7 +11,7 @@ export default function Navbar() {
   const { currentUser, isLoading } = useContext(UserContext);
 
   return (
-    <div className="navbar bg-base-100 shadow-sm">
+    <div className="navbar sticky top-0 z-50 bg-base-100 shadow-sm">
       <div className="flex-1">
         <Link href={"/"} className="px-8 text-2xl font-bold">
           gg.start

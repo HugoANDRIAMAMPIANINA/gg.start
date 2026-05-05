@@ -3,9 +3,11 @@
 import { UserContext } from "@/common/contexts/UserContext";
 import { Bracket } from "@/common/interfaces/bracket.interface";
 import { Tournament } from "@/common/interfaces/tournament.interface";
+import Loader from "@/components/ui/Loader";
 import { formatDate } from "@/helpers/date";
 import { displayBracketType } from "@/helpers/enums";
 import apiClient from "@/lib/apiClient";
+import { CalendarDays } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
@@ -34,25 +36,41 @@ export default function TournamentScreen() {
     fetchTournament();
   }, []);
 
-  if (loading) return <main>Chargement en cours...</main>;
+  if (loading)
+    return (
+      <div className="w-screen h-screen flex items-center justify-center">
+        <Loader />
+      </div>
+    );
 
-  return (
-    <main className="px-16 py-8">
-      {tournament && (
-        <div>
-          <h1>{tournament.name}</h1>
-          <p>{tournament.description}</p>
-          <p>
-            Organisé par{" "}
-            <Link
-              href={`/profile/${tournament.organizer.id}`}
-              className="font-medium text-primary hover:underline"
-            >
-              {tournament.organizer.name}
-            </Link>
-          </p>
-          <p>{formatDate(tournament.startDate)}</p>
-          <p>{formatDate(tournament.endDate)}</p>
+  if (tournament) {
+    return (
+      <main className="px-16 py-8 flex flex-col">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <div>
+              {" "}
+              <span className="text-md font-semibold opacity-50 uppercase">
+                Tournoi
+              </span>
+              <h1 className="text-3xl font-bold">{tournament.name}</h1>
+            </div>
+
+            <p>{tournament.description}</p>
+          </div>
+          <div className="flex flex-row gap-1">
+            <CalendarDays />
+            <p>
+              Du{" "}
+              <strong className="font-semibold">
+                {formatDate(tournament.startDate)}
+              </strong>{" "}
+              au{" "}
+              <strong className="font-semibold">
+                {formatDate(tournament.endDate)}
+              </strong>
+            </p>
+          </div>
           {currentUser && tournament.organizer.id === currentUser.id && (
             <Link href={`/tournaments/${tournament.id}/brackets/new`}>
               <button className="btn btn-primary">
@@ -60,11 +78,12 @@ export default function TournamentScreen() {
               </button>
             </Link>
           )}
-          <BracketList brackets={tournament.brackets} />
         </div>
-      )}
-    </main>
-  );
+        <div className="divider" />
+        <BracketList brackets={tournament.brackets} />
+      </main>
+    );
+  }
 }
 
 interface BracketListProps {
@@ -73,9 +92,9 @@ interface BracketListProps {
 
 function BracketList({ brackets }: BracketListProps) {
   return (
-    <ul className="list p-4 pb-2 bg-base-100 rounded-box shadow-sm">
+    <ul className="list p-4 pb-2 bg-base-100 rounded-box shadow-sm w-full md:w-1/2">
       <li className="text-sm opacity-60">Arbres de tournoi</li>
-      {brackets?.length > 0 ? (
+      {brackets.length > 0 ? (
         brackets.map((bracket) => (
           <BracketListRow key={bracket.id} bracket={bracket} />
         ))
