@@ -6,6 +6,7 @@ import { Match } from "@/common/interfaces/bracket-match.interface";
 import { Bracket } from "@/common/interfaces/bracket.interface";
 import { MatchScore } from "@/common/interfaces/match-score.interface";
 import Button from "@/components/ui/Button";
+import Divider from "@/components/ui/Divider";
 import { Input } from "@/components/ui/Input";
 import Loader from "@/components/ui/Loader";
 import { Modal } from "@/components/ui/Modal";
@@ -19,6 +20,8 @@ import {
 import { isOrganizer } from "@/helpers/user";
 import { setMatchOngoing, updateMatchScore } from "@/lib/actions/brackets";
 import apiClient from "@/lib/apiClient";
+import LoadingScreen from "@/screens/LoadingScreen";
+import { CalendarDays, Info, Sword, Swords } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
@@ -58,37 +61,57 @@ export default function BracketScreen() {
     setRefetch(true);
   };
 
-  if (loading)
-    return (
-      <div className="w-screen h-screen flex items-center justify-center">
-        <Loader />
-      </div>
-    );
+  if (loading) return <LoadingScreen />;
 
-  return (
-    <main>
-      {bracket && (
-        <div>
-          <h1>{bracket.name}</h1>
-          <p>{displayBracketType(bracket.type)}</p>
-          <p>{displayBracketState(bracket.state)}</p>
-          <p>{formatDate(bracket.startDate)}</p>
+  if (bracket)
+    return (
+      <main className="px-16 py-8 flex flex-col">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <div>
+              {" "}
+              <span className="text-md font-semibold opacity-50 uppercase">
+                Arbre de tournoi
+              </span>
+              <h1 className="text-3xl font-bold">{bracket.name}</h1>
+            </div>
+
+            <div className="flex flex-row gap-1">
+              <Info />
+              <p>
+                {displayBracketType(bracket.type)} -{" "}
+                {displayBracketState(bracket.state)}
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-row gap-1">
+            <CalendarDays />
+            <p>
+              Le{" "}
+              <strong className="font-semibold">
+                {formatDate(bracket.startDate)}
+              </strong>{" "}
+            </p>
+          </div>
           <Link
             href={`/tournaments/${tournamentId}/brackets/${bracket.id}/players`}
           >
             <Button>Voir les participants</Button>
           </Link>
         </div>
-      )}
-      {bracketMatches.length > 1 ? (
-        <BracketView matches={bracketMatches} triggerRefetch={triggerRefetch} />
-      ) : (
-        <p className="text-xl">
-          Pas assez de participants inscrits pour générer des matchs
-        </p>
-      )}
-    </main>
-  );
+
+        <Divider />
+
+        {bracketMatches.length > 1 ? (
+          <BracketView
+            matches={bracketMatches}
+            triggerRefetch={triggerRefetch}
+          />
+        ) : (
+          <p className="text-sm opacity-60">En attente de participants</p>
+        )}
+      </main>
+    );
 }
 
 interface BracketMatchListProps {
@@ -184,7 +207,7 @@ function BracketView({ matches, triggerRefetch }: BracketMatchListProps) {
                   ? player.bracketPlayer.user.name
                   : selectedMatch.state === MatchState.COMPLETED
                     ? " "
-                    : "A déterminer"}
+                    : "TBD"}
               </span>
               {selectedMatch.state !== MatchState.ONGOING ? (
                 <span>{player ? player.score : ""}</span>
@@ -242,7 +265,7 @@ function MatchCard({ match, onClick }: MatchCardProps) {
 
   return (
     <div
-      className={`bg-base-200 w-48 lg:w-64 shadow-sm hover:cursor-pointer hover:brightness-95 border-y-4 border-base-200 ${match.state === MatchState.ONGOING && "border-success animate-pulse"}`}
+      className={`bg-base-200 w-48 lg:w-64 hover:cursor-pointer hover:brightness-95 border-3 border-base-300 ${match.state === MatchState.ONGOING && "border-success"}`}
       onClick={onClick}
     >
       {slots.map((player, index) => {
@@ -255,7 +278,7 @@ function MatchCard({ match, onClick }: MatchCardProps) {
               <span></span>
               <div className="grow flex flex-row justify-between pr-2 py-1">
                 <span>
-                  {match.state === MatchState.COMPLETED ? "-" : "A déterminer"}
+                  {match.state === MatchState.COMPLETED ? "-" : "TBD"}
                 </span>
                 <span>-</span>
               </div>
@@ -272,10 +295,18 @@ function MatchCard({ match, onClick }: MatchCardProps) {
               <span className={`${player.isWinner && "font-semibold"}`}>
                 {player.bracketPlayer.user.name}
               </span>
-              <span>{player.score}</span>
+              {match.state === MatchState.ONGOING ? (
+                <Swords className="animate-bounce opacity-50" />
+              ) : match.state === MatchState.PENDING ? (
+                <Sword className="opacity-50" />
+              ) : match.state === MatchState.READY ? (
+                <Swords className="opacity-50" />
+              ) : (
+                <span className="font-semibold">{player.score}</span>
+              )}
             </div>
             <div
-              className={`w-2 ${player.isWinner ? "bg-success" : match.state === MatchState.COMPLETED ? "bg-base-300" : ""}`}
+              className={`w-2 ${player.isWinner ? "bg-success" : match.state === MatchState.COMPLETED ? "opacity-40 bg-gray-400" : ""}`}
             ></div>
           </div>
         );

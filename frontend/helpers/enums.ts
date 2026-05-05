@@ -14,9 +14,11 @@ export function displayBracketType(bracketType: BracketType) {
 
 export function displayBracketState(bracketState: BracketState) {
   if (bracketState === BracketState.REGISTRATION) {
-    return "Inscription";
+    // TODO : Replace when registration is well implementated
+    // return "Inscription en cours";
+    return "En cours";
   } else if (bracketState === BracketState.CHECK_IN) {
-    return "Enregistrement";
+    return "Enregistrement en cours";
   } else if (bracketState === BracketState.ONGOING) {
     return "En cours";
   } else if (bracketState === BracketState.COMPLETED) {

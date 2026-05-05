@@ -11,6 +11,8 @@ import { CalendarDays } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
+import LoadingScreen from "../LoadingScreen";
+import Divider from "@/components/ui/Divider";
 
 export default function TournamentScreen() {
   const { currentUser } = useContext(UserContext);
@@ -36,12 +38,7 @@ export default function TournamentScreen() {
     fetchTournament();
   }, []);
 
-  if (loading)
-    return (
-      <div className="w-screen h-screen flex items-center justify-center">
-        <Loader />
-      </div>
-    );
+  if (loading) return <LoadingScreen />;
 
   if (tournament) {
     return (
@@ -79,7 +76,9 @@ export default function TournamentScreen() {
             </Link>
           )}
         </div>
-        <div className="divider" />
+
+        <Divider />
+
         <BracketList brackets={tournament.brackets} />
       </main>
     );
