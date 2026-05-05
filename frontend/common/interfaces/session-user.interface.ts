@@ -1,3 +1,4 @@
+import { BracketPlayer } from "./bracket-player.interface";
 import { Bracket } from "./bracket.interface";
 import { Tournament } from "./tournament.interface";
 
@@ -6,5 +7,5 @@ export interface SessionUser {
   email: string;
   name: string;
   organizedTournaments: Tournament[];
-  brackets: Bracket[];
+  brackets?: BracketPlayer[];
 }

@@ -52,6 +52,25 @@ export async function updateBracketSeeding(
   }
 }
 
+export async function removePlayerFromBracket(
+  bracketId: string,
+  bracketPlayerId: string,
+): Promise<string | undefined> {
+  try {
+    await fetchWithAuth(
+      {
+        method: "DELETE",
+        url: `/brackets/${bracketId}/players/${bracketPlayerId}`,
+      },
+      { redirectOnAuthFailure: false },
+    );
+  } catch (error: any) {
+    if (error instanceof AxiosError) {
+      return error.response?.data?.message;
+    }
+  }
+}
+
 export async function updateMatchScore(
   matchId: string,
   matchScore: MatchScore[],

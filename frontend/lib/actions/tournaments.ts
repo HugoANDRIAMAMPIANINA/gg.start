@@ -76,6 +76,56 @@ export async function createTournament(
   redirect(`/tournaments/${tournamentId}`);
 }
 
+export async function updateTournament(
+  state: FormState,
+  formData: FormData,
+): Promise<NewTournamentFormResult> {
+  const rawStartDate = formData.get("startDate") as string;
+  const rawEndDate = formData.get("endDate") as string;
+  const tournamentId = formData.get("tournamentId") as string;
+
+  const validatedFields = NewTournamentFormSchema.safeParse({
+    name: formData.get("name"),
+    description: formData.get("description"),
+    startDate: new Date(rawStartDate).toISOString(),
+    endDate: new Date(rawEndDate).toISOString(),
+  });
+
+  // If any form fields are invalid, return early
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+    };
+  }
+
+  const { name, description, startDate, endDate } = validatedFields.data;
+
+  try {
+    const response = await fetchWithAuth({
+      method: "PATCH",
+      url: `/tournaments/${tournamentId}`,
+      data: {
+        name,
+        description,
+        startDate,
+        endDate,
+      },
+    });
+    // const tournament: Tournament = response.data;
+  } catch (error: any) {
+    return { errors: { message: error.message } };
+  }
+
+  redirect(`/tournaments/${tournamentId}`);
+}
+
+export async function deleteTournament(tournamentId: string) {
+  await fetchWithAuth({
+    method: "DELETE",
+    url: `/tournaments/${tournamentId}`,
+  });
+}
+
 export async function createBracket(
   state: FormState,
   formData: FormData,

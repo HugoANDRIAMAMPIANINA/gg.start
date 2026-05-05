@@ -93,11 +93,13 @@ export default function BracketScreen() {
               </strong>{" "}
             </p>
           </div>
-          <Link
-            href={`/tournaments/${tournamentId}/brackets/${bracket.id}/players`}
-          >
-            <Button>Voir les participants</Button>
-          </Link>
+          <div>
+            <Link
+              href={`/tournaments/${tournamentId}/brackets/${bracket.id}/players`}
+            >
+              <Button>Voir les participants</Button>
+            </Link>
+          </div>
         </div>
 
         <Divider />
@@ -181,7 +183,7 @@ function BracketView({ matches, triggerRefetch }: BracketMatchListProps) {
   const rounds = groupByRounds(matches);
   return (
     <>
-      <div className="flex gap-12 p-8 overflow-x-auto">
+      <div className="flex gap-12 py-4 overflow-x-auto">
         {rounds.map((round, roundNumber) => (
           <div key={roundNumber} className="flex flex-col justify-around gap-8">
             {round.map((match) => (
@@ -196,7 +198,7 @@ function BracketView({ matches, triggerRefetch }: BracketMatchListProps) {
       </div>
       {selectedMatch && (
         <Modal
-          title={`Round ${selectedMatch.roundNumber} Match ${selectedMatch.roundMatchNumber}`}
+          title={`Round ${selectedMatch.roundNumber} Match ${selectedMatch.roundMatchNumber} - ${displayMatchState(selectedMatch.state)}`}
           open={selectedMatch && true}
         >
           <h4>{displayMatchState(selectedMatch.state)}</h4>

@@ -7,20 +7,24 @@ import Loader from "@/components/ui/Loader";
 import { formatDate } from "@/helpers/date";
 import { displayBracketType } from "@/helpers/enums";
 import apiClient from "@/lib/apiClient";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Trash } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import LoadingScreen from "../LoadingScreen";
 import Divider from "@/components/ui/Divider";
+import Button from "@/components/ui/Button";
+import { deleteTournament } from "@/lib/actions/tournaments";
 
 export default function TournamentScreen() {
   const { currentUser } = useContext(UserContext);
   const { tournamentId } = useParams();
+  const router = useRouter();
 
   const [tournament, setTournament] = useState<Tournament>();
   const [error, setError] = useState<any>();
   const [loading, setLoading] = useState<boolean>(true);
+  const [deletePending, setDeletePending] = useState<boolean>(false);
 
   useEffect(() => {
     async function fetchTournament() {
@@ -37,6 +41,13 @@ export default function TournamentScreen() {
     }
     fetchTournament();
   }, []);
+
+  const onClickDeleteTournament = async () => {
+    setDeletePending(true);
+    await deleteTournament(tournamentId as string);
+    setDeletePending(false);
+    router.replace("/");
+  };
 
   if (loading) return <LoadingScreen />;
 
@@ -69,11 +80,24 @@ export default function TournamentScreen() {
             </p>
           </div>
           {currentUser && tournament.organizer.id === currentUser.id && (
-            <Link href={`/tournaments/${tournament.id}/brackets/new`}>
-              <button className="btn btn-primary">
-                Ajouter un arbre de tournoi
-              </button>
-            </Link>
+            <div className="flex flex-row gap-2">
+              <Link href={`/tournaments/${tournament.id}/brackets/new`}>
+                <Button>Ajouter un arbre de tournoi</Button>
+              </Link>
+
+              <Link href={`/tournaments/${tournamentId}/edit`}>
+                <Button>Modifier les informations du tournoi</Button>
+              </Link>
+
+              <Button
+                color="error"
+                onClick={onClickDeleteTournament}
+                disabled={deletePending}
+              >
+                Supprimer
+                <Trash width={20} />
+              </Button>
+            </div>
           )}
         </div>
 

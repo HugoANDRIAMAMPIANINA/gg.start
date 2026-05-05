@@ -5,18 +5,20 @@ import { BracketPlayer } from "@/common/interfaces/bracket-player.interface";
 import { User } from "@/common/interfaces/user.interface";
 import BracketPlayersSeedingList from "@/components/brackets/BracketPlayersSeedingList";
 import Button from "@/components/ui/Button";
+import Divider from "@/components/ui/Divider";
 import { Input } from "@/components/ui/Input";
 import Loader from "@/components/ui/Loader";
 import { Modal } from "@/components/ui/Modal";
-import { isPlayer } from "@/helpers/user";
+import { isOrganizer, isPlayer } from "@/helpers/user";
 import { registerUserToBracket } from "@/lib/actions/brackets";
 import { fetchUsersByName } from "@/lib/actions/users";
 import apiClient from "@/lib/apiClient";
+import LoadingScreen from "@/screens/LoadingScreen";
 import { useParams } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 
 export default function BracketPlayersScreen() {
-  const { bracketId } = useParams();
+  const { bracketId, tournamentId } = useParams();
   const { currentUser, isLoading } = useContext(UserContext);
 
   const [bracketPlayers, setBracketPlayers] = useState<BracketPlayer[]>([]);
@@ -81,71 +83,85 @@ export default function BracketPlayersScreen() {
     };
   }, [searchedUsername]);
 
-  return (
-    <main>
-      {!isLoading &&
-        currentUser &&
-        !isPlayer(currentUser, bracketId as string) && (
-          <div className="flex flex-row gap-4">
-            <Button onClick={() => registerUser(currentUser.id)}>
-              S'inscrire à l'arbre de tournoi
-            </Button>
+  if (loading) return <LoadingScreen />;
+
+  if (bracketPlayers) {
+    return (
+      <main className="px-16 py-8 flex flex-col">
+        <div className="flex flex-col gap-4">
+          <div>
+            {" "}
+            <span className="text-md font-semibold opacity-50 uppercase">
+              Seeding
+            </span>
+            <h1 className="text-3xl font-bold">Participants de l'arbre</h1>
           </div>
-        )}
-
-      <Button onClick={() => setIsRegisterUserModalOpen(true)}>
-        Inscrire un joueur
-      </Button>
-      <Modal title="Inscrire un joueur" open={isRegisterUserModalOpen}>
-        {userToRegister && (
-          <span className="badge badge-primary badge-md">{`Utilisateur à inscrire : ${userToRegister.name}`}</span>
-        )}
-        <Input
-          id="username"
-          name="username"
-          placeholder="Rechercher un joueur"
-          value={searchedUsername}
-          onChange={(event) => setSearchedUsername(event.target.value)}
-          autoComplete="off"
-        />
-        <ul className="menu flex-nowrap bg-base-200 rounded-box w-full mt-2 h-48 overflow-x-auto">
-          <li className="menu-title">Utilisateurs trouvés</li>
-          {foundUsers.length === 0 && (
-            <li className="text-balance">Aucun utilisateur trouvé</li>
+          {!isLoading && currentUser && (
+            <div className="flex flex-row gap-2">
+              {!isPlayer(currentUser, bracketId as string) && (
+                <div className="flex flex-row gap-4">
+                  <Button onClick={() => registerUser(currentUser.id)}>
+                    S'inscrire à l'arbre de tournoi
+                  </Button>
+                </div>
+              )}
+              {isOrganizer(currentUser, tournamentId as string) && (
+                <Button onClick={() => setIsRegisterUserModalOpen(true)}>
+                  Inscrire un joueur
+                </Button>
+              )}
+            </div>
           )}
-          {foundUsers.map((user) => (
-            <li className={`${fetchingUsers && "skeleton"}`} key={user.id}>
-              <button onClick={() => selectUserToRegister(user)}>
-                {user.name}
-              </button>
-            </li>
-          ))}
-        </ul>
-        <div className="modal-action">
-          <Button
-            disabled={!userToRegister}
-            onClick={() => registerUser(userToRegister!.id)}
-          >
-            Valider
-          </Button>
-          <Button
-            color="none"
-            onClick={() => setIsRegisterUserModalOpen(false)}
-          >
-            Fermer
-          </Button>
         </div>
-      </Modal>
+        {error && <p className="text-error">{error}</p>}
+        <Divider />
 
-      {loading && <Loader />}
-      {error && <p className="text-error">{error}</p>}
-
-      {bracketPlayers && (
         <BracketPlayersSeedingList
           bracketPlayers={bracketPlayers}
           setBracketPlayers={setBracketPlayers}
         />
-      )}
-    </main>
-  );
+
+        <Modal title="Inscrire un joueur" open={isRegisterUserModalOpen}>
+          {userToRegister && (
+            <span className="badge badge-primary badge-md">{`Utilisateur à inscrire : ${userToRegister.name}`}</span>
+          )}
+          <Input
+            id="username"
+            name="username"
+            placeholder="Rechercher un joueur"
+            value={searchedUsername}
+            onChange={(event) => setSearchedUsername(event.target.value)}
+            autoComplete="off"
+          />
+          <ul className="menu flex-nowrap bg-base-200 rounded-box w-full mt-2 h-48 overflow-x-auto">
+            <li className="menu-title">Utilisateurs trouvés</li>
+            {foundUsers.length === 0 && (
+              <li className="text-balance">Aucun utilisateur trouvé</li>
+            )}
+            {foundUsers.map((user) => (
+              <li className={`${fetchingUsers && "skeleton"}`} key={user.id}>
+                <button onClick={() => selectUserToRegister(user)}>
+                  {user.name}
+                </button>
+              </li>
+            ))}
+          </ul>
+          <div className="modal-action">
+            <Button
+              disabled={!userToRegister}
+              onClick={() => registerUser(userToRegister!.id)}
+            >
+              Valider
+            </Button>
+            <Button
+              color="none"
+              onClick={() => setIsRegisterUserModalOpen(false)}
+            >
+              Fermer
+            </Button>
+          </div>
+        </Modal>
+      </main>
+    );
+  }
 }

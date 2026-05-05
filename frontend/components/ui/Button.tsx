@@ -4,7 +4,7 @@ type ButtonProps = {
   children: React.ReactNode;
   width?: "auto" | "full";
   size?: "xs" | "sm" | "md" | "lg" | "xl";
-  color?: "primary" | "secondary" | "accent" | "none";
+  color?: "primary" | "secondary" | "accent" | "none" | "error";
 } & ButtonHTMLAttributes<HTMLButtonElement>;
 
 export default function Button({

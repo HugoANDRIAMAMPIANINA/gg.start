@@ -29,19 +29,20 @@ export default function HomeScreen() {
         setFinished(finishedResponse.data ?? []);
 
         if (currentUser) {
-          const [organizedResult, participatedResult] = await Promise.allSettled([
-            apiClient.get<Tournament[]>("/tournaments/recent/organized"),
-            apiClient.get<Tournament[]>("/tournaments/recent/participated"),
-          ]);
+          const [organizedResult, participatedResult] =
+            await Promise.allSettled([
+              apiClient.get<Tournament[]>("/tournaments/recent/organized"),
+              apiClient.get<Tournament[]>("/tournaments/recent/participated"),
+            ]);
 
           setOrganized(
             organizedResult.status === "fulfilled"
-              ? organizedResult.value.data ?? []
+              ? (organizedResult.value.data ?? [])
               : [],
           );
           setParticipated(
             participatedResult.status === "fulfilled"
-              ? participatedResult.value.data ?? []
+              ? (participatedResult.value.data ?? [])
               : [],
           );
         } else {
@@ -62,45 +63,47 @@ export default function HomeScreen() {
   }, [currentUser]);
 
   return (
-    <main className="space-y-10 px-4 py-8">
+    <main>
       <Hero />
 
-      {loading ? (
-        <div className="space-y-6">
-          <div className="h-28 rounded-3xl bg-base-200 animate-pulse" />
-          <div className="h-28 rounded-3xl bg-base-200 animate-pulse" />
-        </div>
-      ) : (
-        <>
-          <TournamentsSection
-            title="Upcoming"
-            tournaments={upcoming}
-            emptyMessage="Aucun tournoi à venir pour le moment."
-          />
-
-          <TournamentsSection
-            title="Récemment terminés"
-            tournaments={finished}
-            emptyMessage="Aucun tournoi terminé récemment."
-          />
-
-          {currentUser && organized.length > 0 && (
+      <div className="space-y-10 px-4 py-8">
+        {loading ? (
+          <div className="space-y-6">
+            <div className="h-28 rounded-3xl bg-base-200 animate-pulse" />
+            <div className="h-28 rounded-3xl bg-base-200 animate-pulse" />
+          </div>
+        ) : (
+          <>
             <TournamentsSection
-              title="Derniers tournois organisés"
-              tournaments={organized}
-              emptyMessage="Aucun tournoi organisé récemment."
+              title="À venir"
+              tournaments={upcoming}
+              emptyMessage="Aucun tournoi à venir pour le moment."
             />
-          )}
 
-          {currentUser && participated.length > 0 && (
             <TournamentsSection
-              title="Derniers tournois participés"
-              tournaments={participated}
-              emptyMessage="Aucun tournoi auquel vous avez participé récemment."
+              title="Récemment terminés"
+              tournaments={finished}
+              emptyMessage="Aucun tournoi terminé récemment."
             />
-          )}
-        </>
-      )}
+
+            {currentUser && organized.length > 0 && (
+              <TournamentsSection
+                title="Derniers tournois organisés"
+                tournaments={organized}
+                emptyMessage="Aucun tournoi organisé récemment."
+              />
+            )}
+
+            {currentUser && participated.length > 0 && (
+              <TournamentsSection
+                title="Derniers tournois participés"
+                tournaments={participated}
+                emptyMessage="Aucun tournoi auquel vous avez participé récemment."
+              />
+            )}
+          </>
+        )}
+      </div>
     </main>
   );
 }
