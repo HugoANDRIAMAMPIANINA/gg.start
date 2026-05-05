@@ -5,3 +5,8 @@ export interface BracketPlayer {
   user: User;
   seed: number;
 }
+
+export interface BracketPlayerSeed {
+  bracketPlayerId: string;
+  seed: number;
+}

@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@dnd-kit/helpers": "^0.4.0",
+    "@dnd-kit/react": "^0.4.0",
     "@next/env": "^16.1.6",
     "axios": "^1.13.6",
     "cally": "^0.9.2",

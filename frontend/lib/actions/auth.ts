@@ -110,13 +110,16 @@ export async function login(
 
 export async function logout() {
   const headers = await getAuthTokenHeaders();
-  await fetchWithAuth({
-    method: "POST",
-    url: "/auth/logout",
-    headers: headers,
-  });
+  try {
+    await fetchWithAuth({
+      method: "POST",
+      url: "/auth/logout",
+      headers: headers,
+    });
+  } catch {
+    console.log("error");
+  }
   await deleteSessionTokens();
-  redirect("/auth/login/");
 }
 
 export interface UpdateProfileResult {

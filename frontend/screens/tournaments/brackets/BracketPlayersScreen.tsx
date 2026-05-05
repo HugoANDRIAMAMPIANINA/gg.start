@@ -3,6 +3,7 @@
 import { UserContext } from "@/common/contexts/UserContext";
 import { BracketPlayer } from "@/common/interfaces/bracket-player.interface";
 import { User } from "@/common/interfaces/user.interface";
+import BracketPlayersSeedingList from "@/components/brackets/BracketPlayersSeedingList";
 import Button from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import Loader from "@/components/ui/Loader";
@@ -18,7 +19,7 @@ export default function BracketPlayersScreen() {
   const { bracketId } = useParams();
   const { currentUser, isLoading } = useContext(UserContext);
 
-  const [bracketPlayers, setBracketPlayers] = useState<BracketPlayer[]>();
+  const [bracketPlayers, setBracketPlayers] = useState<BracketPlayer[]>([]);
   const [error, setError] = useState<any>();
   const [loading, setLoading] = useState<boolean>(true);
   const [modalErrorMessage, setModalErrorMessage] = useState("");
@@ -138,13 +139,13 @@ export default function BracketPlayersScreen() {
 
       {loading && <Loader />}
       {error && <p className="text-error">{error}</p>}
-      {bracketPlayers &&
-        bracketPlayers.map((bracketPlayer) => (
-          <div key={bracketPlayer.id} className="grid grid-cols-2 w-1/4">
-            <p>{bracketPlayer.seed}</p>
-            <p>{bracketPlayer.user.name}</p>
-          </div>
-        ))}
+
+      {bracketPlayers && (
+        <BracketPlayersSeedingList
+          bracketPlayers={bracketPlayers}
+          setBracketPlayers={setBracketPlayers}
+        />
+      )}
     </main>
   );
 }

@@ -252,6 +252,7 @@ function MatchCard({ match, onClick }: MatchCardProps) {
               key={index}
               className="flex justify-between pl-4 opacity-40 italic"
             >
+              <span></span>
               <div className="grow flex flex-row justify-between pr-2 py-1">
                 <span>
                   {match.state === MatchState.COMPLETED ? "-" : "A déterminer"}
@@ -268,7 +269,9 @@ function MatchCard({ match, onClick }: MatchCardProps) {
         return (
           <div key={player.id} className={`flex justify-between pl-4`}>
             <div className="grow flex flex-row justify-between pr-2 py-1">
-              <span>{player.bracketPlayer.user.name}</span>
+              <span className={`${player.isWinner && "font-semibold"}`}>
+                {player.bracketPlayer.user.name}
+              </span>
               <span>{player.score}</span>
             </div>
             <div

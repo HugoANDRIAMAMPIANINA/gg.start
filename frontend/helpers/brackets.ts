@@ -1,7 +1,8 @@
 import { Match } from "@/common/interfaces/bracket-match.interface";
+import { MatchPlayer } from "@/common/interfaces/match-player.interface";
 
 export function groupByRounds(matches: Match[]) {
-  const rounds = new Map<number, any[]>();
+  const rounds = new Map<number, Match[]>();
 
   for (const match of matches) {
     if (!rounds.has(match.roundNumber)) {
@@ -18,7 +19,7 @@ export function groupByRounds(matches: Match[]) {
     );
 }
 
-export function getMatchSlots(match: Match) {
+export function getMatchSlots(match: Match): MatchPlayer[] {
   const slots = Array(2).fill(null);
 
   for (const player of match.players) {

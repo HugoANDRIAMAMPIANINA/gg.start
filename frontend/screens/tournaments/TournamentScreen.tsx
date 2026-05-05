@@ -4,6 +4,7 @@ import { UserContext } from "@/common/contexts/UserContext";
 import { Bracket } from "@/common/interfaces/bracket.interface";
 import { Tournament } from "@/common/interfaces/tournament.interface";
 import { formatDate } from "@/helpers/date";
+import { displayBracketType } from "@/helpers/enums";
 import apiClient from "@/lib/apiClient";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -42,7 +43,7 @@ export default function TournamentScreen() {
           <h1>{tournament.name}</h1>
           <p>{tournament.description}</p>
           <p>
-            Organisé par{' '}
+            Organisé par{" "}
             <Link
               href={`/profile/${tournament.organizer.id}`}
               className="font-medium text-primary hover:underline"
@@ -95,7 +96,7 @@ function BracketListRow({ bracket }: BracketListRowProps) {
   const { tournamentId } = useParams();
 
   return (
-    <li className="list-row">
+    <li className="list-row items-center">
       <div className="list-col-grow flex flex-col gap-1">
         <Link href={`/tournaments/${tournamentId}/brackets/${bracket.id}`}>
           <h2 className="text-xl hover:underline">{bracket.name}</h2>
@@ -103,7 +104,7 @@ function BracketListRow({ bracket }: BracketListRowProps) {
         <p className="text-md">{bracket.game}</p>
       </div>
       <div>
-        <p>{bracket.type}</p>
+        <p>{displayBracketType(bracket.type)}</p>
       </div>
       <div>
         <Link href={`/tournaments/${tournamentId}/brackets/${bracket.id}`}>

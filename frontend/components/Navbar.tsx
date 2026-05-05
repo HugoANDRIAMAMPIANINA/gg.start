@@ -5,6 +5,7 @@ import { logout } from "@/lib/actions/auth";
 import Link from "next/link";
 import { useContext } from "react";
 import ThemeToggle from "./theme/ThemeToggle";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const { currentUser, isLoading } = useContext(UserContext);
@@ -88,8 +89,14 @@ function LoginButton() {
 }
 
 function LogoutButton() {
+  const router = useRouter();
+  const { setCurrentUser } = useContext(UserContext);
+
   async function handleLogout() {
     await logout();
+    setCurrentUser(null);
+    router.push("/auth/login/");
   }
+
   return <button onClick={handleLogout}>Déconnexion</button>;
 }
