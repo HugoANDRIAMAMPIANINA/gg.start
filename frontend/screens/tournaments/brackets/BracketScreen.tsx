@@ -201,34 +201,35 @@ function BracketView({ matches, triggerRefetch }: BracketMatchListProps) {
           title={`Round ${selectedMatch.roundNumber} Match ${selectedMatch.roundMatchNumber} - ${displayMatchState(selectedMatch.state)}`}
           open={selectedMatch && true}
         >
-          <h4>{displayMatchState(selectedMatch.state)}</h4>
-          {getMatchSlots(selectedMatch).map((player, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <span className="w-32">
-                {player
-                  ? player.bracketPlayer.user.name
-                  : selectedMatch.state === MatchState.COMPLETED
-                    ? " "
-                    : "TBD"}
-              </span>
-              {selectedMatch.state !== MatchState.ONGOING ? (
-                <span>{player ? player.score : ""}</span>
-              ) : isOrganizer(currentUser, tournamentId as string) ? (
-                <Input
-                  type="number"
-                  min={0}
-                  value={scores[index]}
-                  onChange={(e) => {
-                    const newScores = [...scores] as [number, number];
-                    newScores[index] = Number(e.target.value);
-                    setScores(newScores);
-                  }}
-                />
-              ) : (
-                <span>{player ? player.score : ""}</span>
-              )}
-            </div>
-          ))}
+          <div className="flex flex-col">
+            {getMatchSlots(selectedMatch).map((player, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <span className="w-32">
+                  {player
+                    ? player.bracketPlayer.user.name
+                    : selectedMatch.state === MatchState.COMPLETED
+                      ? " "
+                      : "TBD"}
+                </span>
+                {selectedMatch.state !== MatchState.ONGOING ? (
+                  <span>{player ? player.score : ""}</span>
+                ) : isOrganizer(currentUser, tournamentId as string) ? (
+                  <Input
+                    type="number"
+                    min={0}
+                    value={scores[index]}
+                    onChange={(e) => {
+                      const newScores = [...scores] as [number, number];
+                      newScores[index] = Number(e.target.value);
+                      setScores(newScores);
+                    }}
+                  />
+                ) : (
+                  <span>{player ? player.score : ""}</span>
+                )}
+              </div>
+            ))}
+          </div>
           {modalErrorMessage && (
             <div className="modal-bottom">
               <p className="text-error">{modalErrorMessage}</p>
@@ -238,6 +239,12 @@ function BracketView({ matches, triggerRefetch }: BracketMatchListProps) {
           <div className="modal-action">
             {isOrganizer(currentUser, tournamentId as string) && (
               <>
+                {selectedMatch.state === MatchState.PENDING &&
+                  selectedMatch.players.length === 2 && (
+                    <Button onClick={() => startMatch()}>
+                      Lancer le match
+                    </Button>
+                  )}
                 {selectedMatch.state === MatchState.READY && (
                   <Button onClick={() => startMatch()}>Lancer le match</Button>
                 )}
