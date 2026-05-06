@@ -104,7 +104,7 @@ export default function BracketScreen() {
 
         <Divider />
 
-        {bracketMatches.length > 1 ? (
+        {bracketMatches.length > 0 ? (
           <BracketView
             matches={bracketMatches}
             triggerRefetch={triggerRefetch}
@@ -306,9 +306,8 @@ function MatchCard({ match, onClick }: MatchCardProps) {
               </span>
               {match.state === MatchState.ONGOING ? (
                 <Swords className="animate-bounce opacity-50" />
-              ) : match.state === MatchState.PENDING ? (
-                <Sword className="opacity-50" />
-              ) : match.state === MatchState.READY ? (
+              ) : match.state === MatchState.READY ||
+                match.state === MatchState.PENDING ? (
                 <Swords className="opacity-50" />
               ) : (
                 <span className="font-semibold">{player.score}</span>

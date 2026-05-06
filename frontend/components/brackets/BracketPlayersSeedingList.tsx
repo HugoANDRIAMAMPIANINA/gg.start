@@ -23,11 +23,13 @@ import Loader from "../ui/Loader";
 interface BracketPlayersSeedingListProps {
   bracketPlayers: BracketPlayer[];
   setBracketPlayers: (value: SetStateAction<BracketPlayer[]>) => void;
+  triggerRefetch: () => void;
 }
 
 export default function BracketPlayersSeedingList({
   bracketPlayers,
   setBracketPlayers,
+  triggerRefetch,
 }: BracketPlayersSeedingListProps) {
   const { currentUser } = useContext(UserContext);
   const { bracketId, tournamentId } = useParams();
@@ -66,6 +68,7 @@ export default function BracketPlayersSeedingList({
               key={player.id}
               player={player}
               index={index}
+              triggerRefetch={triggerRefetch}
             />
           ))}
         </ul>
@@ -83,9 +86,14 @@ export default function BracketPlayersSeedingList({
 interface SortableBracketPlayerProps {
   player: BracketPlayer;
   index: number;
+  triggerRefetch: () => void;
 }
 
-function SortableBracketPlayer({ player, index }: SortableBracketPlayerProps) {
+function SortableBracketPlayer({
+  player,
+  index,
+  triggerRefetch,
+}: SortableBracketPlayerProps) {
   const { currentUser } = useContext(UserContext);
   const { tournamentId, bracketId } = useParams();
 
@@ -96,6 +104,7 @@ function SortableBracketPlayer({ player, index }: SortableBracketPlayerProps) {
 
   const removePlayer = async () => {
     await removePlayerFromBracket(bracketId as string, player.id);
+    triggerRefetch();
   };
 
   return (

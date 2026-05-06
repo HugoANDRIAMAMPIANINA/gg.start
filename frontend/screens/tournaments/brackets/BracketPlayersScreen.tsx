@@ -25,6 +25,7 @@ export default function BracketPlayersScreen() {
   const [error, setError] = useState<any>();
   const [loading, setLoading] = useState<boolean>(true);
   const [modalErrorMessage, setModalErrorMessage] = useState("");
+  const [refetch, setRefetch] = useState<boolean>(true);
 
   const [isRegisterUserModalOpen, setIsRegisterUserModalOpen] =
     useState<boolean>(false);
@@ -44,12 +45,13 @@ export default function BracketPlayersScreen() {
       } catch (error) {
         setError(error);
       }
+      setRefetch(false);
       setLoading(false);
     }
-    if (!isRegisterUserModalOpen) {
+    if (refetch) {
       fetchBracketPlayers();
     }
-  }, [isRegisterUserModalOpen]);
+  }, [refetch]);
 
   const selectUserToRegister = async (user: User) => {
     setUserToRegister(userToRegister === user ? undefined : user);
@@ -62,9 +64,10 @@ export default function BracketPlayersScreen() {
     );
     if (errorMessage) {
       setModalErrorMessage(errorMessage);
+    } else {
+      setModalErrorMessage("");
     }
-    setIsRegisterUserModalOpen(true);
-    setIsRegisterUserModalOpen(false);
+    setRefetch(true);
   };
 
   useEffect(() => {
@@ -83,6 +86,16 @@ export default function BracketPlayersScreen() {
     };
   }, [searchedUsername]);
 
+  const triggerRefetch = () => {
+    setRefetch(true);
+  };
+
+  const closeModal = () => {
+    setIsRegisterUserModalOpen(false);
+    setModalErrorMessage("");
+    setUserToRegister(undefined);
+  };
+
   if (loading) return <LoadingScreen />;
 
   if (bracketPlayers) {
@@ -90,7 +103,6 @@ export default function BracketPlayersScreen() {
       <main className="px-16 py-8 flex flex-col">
         <div className="flex flex-col gap-4">
           <div>
-            {" "}
             <span className="text-md font-semibold opacity-50 uppercase">
               Seeding
             </span>
@@ -119,6 +131,7 @@ export default function BracketPlayersScreen() {
         <BracketPlayersSeedingList
           bracketPlayers={bracketPlayers}
           setBracketPlayers={setBracketPlayers}
+          triggerRefetch={triggerRefetch}
         />
 
         <Modal title="Inscrire un joueur" open={isRegisterUserModalOpen}>
@@ -147,16 +160,18 @@ export default function BracketPlayersScreen() {
             ))}
           </ul>
           <div className="modal-action">
+            {modalErrorMessage && (
+              <p className="w-full text-sm text-error self-center justify-self-">
+                {modalErrorMessage}
+              </p>
+            )}
             <Button
               disabled={!userToRegister}
               onClick={() => registerUser(userToRegister!.id)}
             >
               Valider
             </Button>
-            <Button
-              color="none"
-              onClick={() => setIsRegisterUserModalOpen(false)}
-            >
+            <Button color="none" onClick={closeModal}>
               Fermer
             </Button>
           </div>
