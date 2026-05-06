@@ -55,13 +55,13 @@ export class UsersService {
   async findOneById(id: string): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { id: id },
-      relations: { organizedTournaments: true, brackets: true },
+      relations: { organizedTournaments: true, brackets: { bracket: true } },
       select: {
         id: true,
         name: true,
         email: true,
         organizedTournaments: { id: true },
-        brackets: { id: true },
+        brackets: { id: true, bracket: { id: true } },
       },
     });
     if (!user) {

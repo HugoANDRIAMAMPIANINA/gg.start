@@ -62,7 +62,6 @@ export class SingleEliminationGenerator implements BracketGenerator {
       .filter((match) => match.roundNumber === 1)
       .sort((a, b) => a.roundMatchNumber - b.roundMatchNumber);
 
-    // bracketOrder.map((seed));
     matches.map((match, index) => {
       const player1 = players.find(
         (player) => player.seed === bracketOrder[index * 2] + 1,
