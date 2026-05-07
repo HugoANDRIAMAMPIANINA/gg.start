@@ -9,7 +9,7 @@ Application web de création et de gestion de tournois inspirée de `start.gg` e
 
 ## Vision du projet
 
-gg.start est une plateforme web permettant à n'importe quel utilisateur d'organiser et de participer à des tournois en ligne. L'application gère automatiquement la génération des brackets, le suivi des matchs et le classement des participants.
+gg.start est une plateforme web permettant à n'importe quel utilisateur d'organiser et de participer à des tournois en ligne. L'application gère automatiquement la génération des brackets (arbres de tournoi), ainsi que le suivi des matchs.
 
 ## Configuration
 
