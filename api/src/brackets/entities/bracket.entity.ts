@@ -49,4 +49,7 @@ export class Bracket {
 
   @OneToMany(() => Match, (match) => match.bracket)
   matches: Match[];
+
+  @Column({ type: 'timestamptz' })
+  startDate: Date;
 }

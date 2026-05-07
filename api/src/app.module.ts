@@ -16,6 +16,7 @@ import { AppController } from './app.controller';
   imports: [
     ConfigModule.forRoot({
       envFilePath: './../.env',
+      isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -36,8 +37,10 @@ import { AppController } from './app.controller';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         global: true,
-        secret: configService.get('JWT_SECRET'),
-        signOptions: { expiresIn: '1d' },
+        secret: configService.get('JWT_ACCESS_TOKEN_SECRET'),
+        signOptions: {
+          expiresIn: configService.get<number>('JWT_ACCESS_TOKEN_EXPIRATION'),
+        },
       }),
       global: true,
     }),

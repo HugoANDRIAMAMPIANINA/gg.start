@@ -6,6 +6,7 @@ import {
   Param,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -51,8 +52,8 @@ export class UsersController {
     status: HttpStatus.OK,
     description: 'List of users returned successfully',
   })
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query('name') name?: string, @Query('limit') limit?: number) {
+    return this.usersService.findAll(name, limit);
   }
 
   @Get(':id')

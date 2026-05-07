@@ -1,9 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
@@ -13,7 +17,20 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
+  async userExists(email: string) {
+    const user = await this.usersRepository.findOne({
+      where: { email: email },
+    });
+    return user ? true : false;
+  }
+
   async create(createUserDto: CreateUserDto) {
+    const userExists = await this.userExists(createUserDto.email);
+    if (userExists) {
+      throw new ConflictException("L'adresse mail est déjà utilisé");
+    }
+
+    console.log(createUserDto);
     let user: User = new User();
     user.name = createUserDto.name;
     user.email = createUserDto.email;
@@ -23,18 +40,30 @@ export class UsersService {
     user.passwordHash = hash;
 
     user = await this.usersRepository.save(user);
-
-    const { passwordHash, ...result } = user; // Retire le hash du mot de passe de l'objet pour ne pas l'envoyer dans la requête
-
+    const { passwordHash, refreshToken, ...result } = user; // Retire le hash du mot de passe de l'objet pour ne pas l'envoyer dans la requête
     return result;
   }
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  findAll(name?: string, limit?: number): Promise<User[]> {
+    return this.usersRepository.find({
+      where: { name: Like(`${name}%`) },
+      take: limit,
+      select: { id: true, name: true, email: true },
+    });
   }
 
   async findOneById(id: string): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { id: id } });
+    const user = await this.usersRepository.findOne({
+      where: { id: id },
+      relations: { organizedTournaments: true, brackets: { bracket: true } },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        organizedTournaments: { id: true },
+        brackets: { id: true, bracket: { id: true } },
+      },
+    });
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -57,6 +86,7 @@ export class UsersService {
         name: true,
         email: true,
         passwordHash: true,
+        refreshToken: true,
       },
     });
     if (!user) {
@@ -83,16 +113,60 @@ export class UsersService {
     return user;
   }
 
+  async findOneByIdWithRefreshToken(id: string): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { id: id },
+      select: {
+        id: true,
+        refreshToken: true,
+      },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
+  async findOneByRefreshToken(refreshToken: string): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { refreshToken: refreshToken },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.findOneById(id);
+
     const newName = updateUserDto.name;
     if (newName) {
       user.name = newName;
     }
+
     const newEmail = updateUserDto.email;
-    if (newEmail) {
+    if (newEmail && newEmail !== user.email) {
+      const emailExists = await this.userExists(newEmail);
+      if (emailExists) {
+        throw new ConflictException("L'adresse mail est déjà utilisée");
+      }
       user.email = newEmail;
     }
+
+    const newPassword = updateUserDto.password;
+    if (newPassword) {
+      const saltOrRounds = 10;
+      user.passwordHash = await bcrypt.hash(newPassword, saltOrRounds);
+    }
+
+    const updatedUser = await this.usersRepository.save(user);
+    const { passwordHash, refreshToken, ...result } = updatedUser;
+    return result;
+  }
+
+  async updateUserRefreshToken(user: User, refreshToken: string | null) {
+    user.refreshToken = refreshToken;
     await this.usersRepository.save(user);
   }
 

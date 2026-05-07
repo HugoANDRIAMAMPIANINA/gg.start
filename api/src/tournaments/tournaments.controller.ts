@@ -66,6 +66,82 @@ export class TournamentsController {
   }
 
   @Public()
+  @Get('recent/upcoming')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get upcoming recent tournaments',
+    description: 'Returns upcoming tournaments ordered by start date.',
+  })
+  findRecentUpcoming() {
+    return this.tournamentsService.findRecentUpcoming();
+  }
+
+  @Public()
+  @Get('recent/finished')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get recently finished tournaments',
+    description: 'Returns finished tournaments ordered by end date.',
+  })
+  findRecentFinished() {
+    return this.tournamentsService.findRecentFinished();
+  }
+
+  @Get('recent/organized')
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get recent tournaments organized by the authenticated user',
+    description: 'Returns the authenticated user’s most recent organized tournaments.',
+  })
+  findRecentOrganized(@Request() request) {
+    return this.tournamentsService.findRecentOrganizedByUser(request.user.sub);
+  }
+
+  @Get('recent/participated')
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get recent tournaments participated by the authenticated user',
+    description: 'Returns the authenticated user’s most recent participated tournaments.',
+  })
+  findRecentParticipated(@Request() request) {
+    return this.tournamentsService.findRecentParticipatedByUser(request.user.sub);
+  }
+
+  @Public()
+  @Get('recent/organized/user/:userId')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get recent tournaments organized by a user',
+    description: 'Returns the most recent tournaments organized by the given user.',
+  })
+  @ApiParam({
+    name: 'userId',
+    description: 'User UUID',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  findRecentOrganizedByUser(@Param('userId') userId: string) {
+    return this.tournamentsService.findRecentOrganizedByUser(userId);
+  }
+
+  @Public()
+  @Get('recent/participated/user/:userId')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get recent tournaments participated by a user',
+    description: 'Returns the most recent tournaments participated by the given user.',
+  })
+  @ApiParam({
+    name: 'userId',
+    description: 'User UUID',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  findRecentParticipatedByUser(@Param('userId') userId: string) {
+    return this.tournamentsService.findRecentParticipatedByUser(userId);
+  }
+
+  @Public()
   @Get(':tournamentId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({

@@ -59,11 +59,20 @@ export class MatchesService {
 
   async markMatchAsOngoing(id: string) {
     const match = await this.findOneById(id);
-    if (match.state !== MatchState.READY) {
+
+    if (
+      match.state === MatchState.ONGOING ||
+      match.state === MatchState.COMPLETED
+    ) {
       throw new ConflictException({
-        message: 'Invalid MatchState transition',
-        currentState: match.state,
-        requiredState: MatchState.READY,
+        message:
+          'Invalid MatchState transition, must be "ready" or "pending" to start',
+      });
+    }
+
+    if (match.players.length < 2) {
+      throw new BadRequestException({
+        message: 'All players must be set to start the match',
       });
     }
     await this.updateMatchState(match, MatchState.ONGOING);
@@ -98,6 +107,10 @@ export class MatchesService {
     [player1, player2] = await this.matchPlayersRepository.save(matchPlayers);
 
     const winner = player1.score > player2.score ? player1 : player2;
+
+    winner.isWinner = true;
+    await this.matchPlayersRepository.save(winner);
+
     const loser = winner === player1 ? player2 : player1;
 
     await this.updateMatchState(match, MatchState.COMPLETED);

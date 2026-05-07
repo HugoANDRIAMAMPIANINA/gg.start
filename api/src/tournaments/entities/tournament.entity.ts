@@ -29,4 +29,10 @@ export class Tournament {
 
   @OneToMany(() => Bracket, (bracket) => bracket.tournament)
   brackets: Bracket[];
+
+  @Column({ type: 'timestamptz' })
+  startDate: Date;
+
+  @Column({ type: 'timestamptz' })
+  endDate: Date;
 }
