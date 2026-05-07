@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDate, IsString } from 'class-validator';
+import { IsDate, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateTournamentDto {
   @IsString()
+  @IsNotEmpty()
   @ApiProperty({
     type: 'string',
     description: 'A string used as Tournament name',
@@ -23,6 +24,7 @@ export class CreateTournamentDto {
       'An ISO 8601 string containing a date used as the starting date of tournament',
   })
   @IsDate()
+  @IsNotEmpty()
   @Type(() => Date) // Transforms the incoming ISO string to a Date object
   startDate: Date;
 
@@ -32,6 +34,7 @@ export class CreateTournamentDto {
       'An ISO 8601 string containing a date used as the ending date of tournament',
   })
   @IsDate()
+  @IsNotEmpty()
   @Type(() => Date)
   endDate: Date;
 }

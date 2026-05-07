@@ -74,11 +74,12 @@ export default function BracketPlayersSeedingList({
         </ul>
       </DragDropProvider>
 
-      {isOrganizer(currentUser, tournamentId as string) && (
-        <Button onClick={handleSave} disabled={saving} width="auto">
-          {saving ? <Loader /> : "Mettre à jour le seeding"}
-        </Button>
-      )}
+      {isOrganizer(currentUser, tournamentId as string) &&
+        bracketPlayers.length > 0 && (
+          <Button onClick={handleSave} disabled={saving} width="auto">
+            {saving ? <Loader /> : "Mettre à jour le seeding"}
+          </Button>
+        )}
     </div>
   );
 }

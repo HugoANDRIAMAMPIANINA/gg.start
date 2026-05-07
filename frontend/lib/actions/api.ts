@@ -3,7 +3,7 @@
 import apiClient from "@/lib/apiClient";
 import { getAuthTokenHeaders, setSessionTokens } from "@/lib/session";
 import { redirect } from "next/navigation";
-import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
+import { Axios, AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 
 export async function fetchWithAuth(
   config: AxiosRequestConfig,
@@ -19,12 +19,12 @@ export async function fetchWithAuth(
       headers: { ...config.headers, ...headers },
     });
   } catch (error: any) {
-    // Not a 401 — rethrow as is
+    // If not a 401, rethrow error without altering it
     if (error.response?.status !== 401) {
       throw error;
     }
 
-    // 401 — attempt refresh
+    // If it is a 401, try to refresh the tokens
     try {
       const refreshHeaders = await getAuthTokenHeaders();
       const refreshResponse = await apiClient.post("/auth/refresh", null, {
@@ -43,7 +43,12 @@ export async function fetchWithAuth(
         headers: { ...config.headers, ...newHeaders },
       });
     } catch (error: any) {
-      if (options.redirectOnAuthFailure) {
+      console.log(error);
+      if (
+        options.redirectOnAuthFailure &&
+        error instanceof AxiosError &&
+        error.response?.status === 401
+      ) {
         redirect("/auth/login");
       }
       throw error;

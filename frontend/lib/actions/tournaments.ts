@@ -7,6 +7,7 @@ import { Tournament } from "@/common/interfaces/tournament.interface";
 import { NewBracketFormSchema } from "@/common/schemas/new-bracket.schema";
 import { Bracket } from "@/common/interfaces/bracket.interface";
 import { fetchWithAuth } from "./api";
+import { AxiosError } from "axios";
 
 interface NewTournamentFormResult {
   errors: NewTournamentFormErrors;
@@ -70,7 +71,9 @@ export async function createTournament(
     const tournament: Tournament = response.data;
     tournamentId = tournament.id;
   } catch (error: any) {
-    return { errors: { message: error.message } };
+    if (error instanceof AxiosError) {
+      return { errors: { message: error.response?.data?.message } };
+    }
   }
 
   redirect(`/tournaments/${tournamentId}`);
@@ -113,7 +116,9 @@ export async function updateTournament(
     });
     // const tournament: Tournament = response.data;
   } catch (error: any) {
-    return { errors: { message: error.message } };
+    if (error instanceof AxiosError) {
+      return { errors: { message: error.response?.data?.message } };
+    }
   }
 
   redirect(`/tournaments/${tournamentId}`);
@@ -170,10 +175,14 @@ export async function createBracket(
         tournamentId,
       },
     });
+    console.log(response.data);
     const bracket: Bracket = response.data;
     bracketId = bracket.id;
   } catch (error: any) {
-    return { errors: { message: error.response.data.message } };
+    if (error instanceof AxiosError) {
+      return { errors: { message: error.response?.data?.message } };
+    }
+    throw error;
   }
 
   redirect(`/tournaments/${tournamentId}/brackets/${bracketId}`);

@@ -27,6 +27,7 @@ export default function NewTournamentForm() {
               placeholder="Nom du tournoi"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              required
             />
           </FormField>
 
@@ -51,12 +52,13 @@ export default function NewTournamentForm() {
                 name="startDate"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
+                required
               />
             </FormField>
 
             <FormField
               label="Date de fin du tournoi"
-              error={state?.errors.startDate}
+              error={state?.errors.endDate}
             >
               <Input
                 type="datetime-local"
@@ -64,10 +66,15 @@ export default function NewTournamentForm() {
                 name="endDate"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
+                required
               />
             </FormField>
           </div>
         </div>
+
+        {state?.errors.message && (
+          <p className="text-error text-sm">{state.errors.message}</p>
+        )}
 
         <div className="justify-end">
           <Button disabled={pending} type="submit" className="btn btn-primary">

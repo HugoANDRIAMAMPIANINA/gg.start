@@ -127,6 +127,10 @@ export default function EditTournamentForm() {
           </div>
         </div>
 
+        {state?.errors.message && (
+          <p className="text-error text-sm">{state.errors.message}</p>
+        )}
+
         <div className="justify-end">
           <Button disabled={pending} type="submit" className="btn btn-primary">
             Mettre à jour
